@@ -11,4 +11,5 @@ Our newest printer, being built following the 1.5+ [MendelMax](http://mendelmax.
 (And feel free to add in your own)
 
 * Sourcing parts and beginning construction.
-* Deciding on a classy name for the new member of our printer family.
+* Printing parts (finished, except for extruder)
+* Deciding on a classy name for the new member of our printer family. ("Maxwell" ?)
