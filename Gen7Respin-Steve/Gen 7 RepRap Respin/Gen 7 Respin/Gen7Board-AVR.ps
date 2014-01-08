@@ -1,0 +1,6382 @@
+%!PS-Adobe-3.0
+%%Creator: gEDA gschem 1.6.1-20100214-22-ga30f00b
+%%CreationDate: Wed Nov 20 13:52:10 2013
+%%Title: /media/STORAGE_1/University Stuff/Rapid/UBC-Rapid/Electronics/Gen 7 RepRap Respin/Gen 7 Respin/Gen7Board-AVR.sch
+%%Author: (null)
+%%BoundingBox: 0 0 1224 1584
+%%Orientation: Landscape
+%%Pages: 1
+%%Endcomments
+%%BeginProlog
+% Prolog for gEDA, define all the functions needed for rendering
+% schematics on Postscript devices
+
+
+% Draw a line from the second coordinate to the first
+% x2 y2 x1 y1 width line -
+/line {
+    setlinewidth
+    % pop off first element and moveto
+    moveto
+    % pop off remaining elements and draw a line segment
+    lineto
+    % draw it
+    stroke
+} bind def
+
+
+% Draw a dot
+% x y r dot -
+/dot {
+    0 360 arc fill
+} bind def
+
+% Draw a dot-dashed line, a bunch of lined segments,
+% if the array element only has length two, draw a dot.
+% [ [x2 y2 x1 y1] [x4 y4 x3 y3] [x5 y5] ... ] width dashed -
+/width 0 def
+/dashed {
+    dup 2.0 div /width exch def
+    setlinewidth
+    % pop off each line segment and draw it as a dot or as a line
+    {
+	aload length 2 gt
+	{ moveto lineto stroke}
+	{ width dot } ifelse
+    } forall
+} bind def
+
+% Draw an arc segment
+% x y r ang1 ang2 width darc -
+/darc {
+    setlinewidth
+    arc stroke
+} bind def
+
+% Draw a series of arc segment bits, if the array element only has a single
+% element in it, draw a dot.
+% [ [sa1 ea1] [sa2 ea2] ... ] x y r width dashedarc -
+/x 0 def
+/y 0 def
+/dashedarc {
+    dup /width exch def
+    setlinewidth
+    /r exch def  
+    /y exch def
+    /x exch def
+    { aload length 1 gt
+	{
+	    % this element had two angles in it
+	    % extract start and stop angles
+	    x y r   % drop x y and r onto stack
+		    % at this point we have: sa ea x y r
+		    % we need                      x y r sa ea
+		    % so..
+	    5 -2 roll
+	    % and add it to the current path, and draw it
+	    arc stroke
+	} {
+	    % this element only had one angle in it, place a
+	    % filled dot at the appropriate place
+	    % compute center point of the arc using the angle
+	    % that is on the top of the stack
+	    dup   		% angle angle
+	    cos r mul x add 	% angle x
+	    exch		% x angle
+	    sin r mul y add	% x y
+	    width		% x y width/2
+	    dot			% draw the dot
+	} ifelse
+    } forall
+
+    % Now draw it
+    stroke
+} bind def
+
+% Draw a box
+% width height x y linethickness box -
+/box {
+    setlinewidth
+    moveto
+    exch dup 0 rlineto	 % w h, h w w 0      -- Draw bottom line
+    exch 0 exch rlineto	 % h w, w h 0, w 0 h -- Draw right line 
+    neg 0 rlineto	 % w, -w 0           -- Draw Top line
+    closepath		 % finish and draw it
+    stroke
+} bind def			     
+
+% Draw a filled box
+% width height x y fbox -
+/fbox {
+    moveto
+    exch dup 0 rlineto	
+    exch 0 exch rlineto	
+    neg 0 rlineto		
+    closepath			
+    fill			
+} bind def
+
+% Font reincoding utilities
+
+% ISOLatin1Encoding, extended with remaining uncoded glyphs
+/ISOLatin1Extended [
+    /.notdef /Lslash /lslash /OE /oe /Scaron /scaron /Zcaron /zcaron
+    /Ydieresis /trademark /bullet /dagger /daggerdbl /ellipsis /emdash
+    /endash /fi /fl /florin /fraction /guilsinglleft /guilsinglright
+    /perthousand /quotedblbase /quotedblleft /quotedblright
+    /quotesinglbase /quotesingle /.notdef /.notdef /.notdef /space
+    /exclam /quotedbl /numbersign /dollar /percent /ampersand
+    /quoteright /parenleft /parenright /asterisk /plus /comma /minus
+    /period /slash /zero /one /two /three /four /five /six /seven /eight
+    /nine /colon /semicolon /less /equal /greater /question /at /A /B /C
+    /D /E /F /G /H /I /J /K /L /M /N /O /P /Q /R /S /T /U /V /W /X /Y /Z
+    /bracketleft /backslash /bracketright /asciicircum /underscore
+    /quoteleft /a /b /c /d /e /f /g /h /i /j /k /l /m /n /o /p /q /r /s
+    /t /u /v /w /x /y /z /braceleft /bar /braceright /asciitilde
+    /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+    /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+    /.notdef /.notdef /.notdef /dotlessi /grave /acute /circumflex
+    /tilde /macron /breve /dotaccent /dieresis /.notdef /ring /cedilla
+    /.notdef /hungarumlaut /ogonek /caron /space /exclamdown /cent
+    /sterling /currency /yen /brokenbar /section /dieresis /copyright
+    /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron
+    /degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph
+    /periodcentered /cedilla /onesuperior /ordmasculine /guillemotright
+    /onequarter /onehalf /threequarters /questiondown /Agrave /Aacute
+    /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla /Egrave /Eacute
+    /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis /Eth
+    /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply
+    /Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn
+    /germandbls /agrave /aacute /acircumflex /atilde /adieresis /aring
+    /ae /ccedilla /egrave /eacute /ecircumflex /edieresis /igrave
+    /iacute /icircumflex /idieresis /eth /ntilde /ograve /oacute
+    /ocircumflex /otilde /odieresis /divide /oslash /ugrave /uacute
+    /ucircumflex /udieresis /yacute /thorn /ydieresis
+] def
+
+% `new-font-name' `encoding-vector' `old-font-name' RE -
+/RE {
+    findfont
+    dup maxlength dict begin {
+        1 index /FID ne { def } { pop pop } ifelse
+    } forall
+    /Encoding exch def
+    dup /FontName exch def
+    currentdict end definefont pop
+} bind def
+
+% Text handling functions, select the font and scale it, then we need
+% only to apply the appropriate transformations to get the text
+% justified into the right spots.  The bad thing here is that we don't
+% do any kerning, so the output may look a bit strange.
+
+% compute the height of one character and return lly and ury
+% (char) charheight lly ury
+/charheight {
+    gsave			% push graphics state
+	newpath			% clear current path
+	0 0 moveto		% Set current point
+	false charpath		% get path
+	flattenpath		% flatten path
+	pathbbox		% stack = llx lly urx ury
+	exch pop		% stack = llx lly ury
+	3 -1 roll pop		% stack = lly ury
+    grestore			% pop graphics state
+} bind def
+
+% compute the height of a string, one character at a time
+% (string) stringheight lly ury
+/lly 0.0 def
+/ury 0.0 def
+
+/stringheight {
+    /lly 0.0 def			% initial value of heightmin
+    /ury 0.0 def			% initial value of heightmax
+    {				% work through string
+	( ) dup 0 4 -1 roll put	% create one character string
+	charheight		% measure it's height
+	dup ury gt {		% if ury gt heightmax
+	    /ury exch def	% update with new value
+	} {
+	    pop			% else discard ury
+	} ifelse
+	dup lly lt {		% if lly lt heightmin
+	    /lly exch def	% update with new value
+	} {
+	    pop			% else discard lly
+	} ifelse
+    } forall
+    lly ury			% Return the results
+} bind def
+
+% calculate the string width taking into account the escapes.
+/mystrx 0.0 def
+/mystry 0.0 def
+/mystresc false def
+
+/mystringwidth {
+    /mystrx 0.0 def
+    /mystry 0.0 def
+    /mystresc false def
+    {				% work through string
+	% did we process the escape character last?
+	mystresc {
+	    % last character was escape
+	    % handle the escape
+	    % is it an _ = 95?
+	    dup 95 eq {
+		pop  % we don't need the character anymore
+		% toggle drawing overbars
+		0.0 0.0 % make it like it never happened...
+	    } {
+		% otherwise measure the character 
+		(\\ ) dup 1 4 -1 roll put % count a \ and the character
+		stringwidth
+	    } ifelse
+	    % and reset the flag
+	    /mystresc false def
+	} {
+	    % last character was not escape
+	    % is this escape
+	    dup 92 eq {
+		% yes, escape character, set flag
+		/mystresc true def
+		pop % drop character
+		0.0 0.0 % make like this character has no width and height
+	    } {
+		( ) dup 0 4 -1 roll put	% create one character string
+		stringwidth		% measure it's height/width
+	    } ifelse
+	} ifelse
+	% accumulate x and y movements
+	mystry add /mystry exch def
+	mystrx add /mystrx exch def
+    } forall
+    mystrx mystry % drop results on stack
+} bind def
+
+% Render a string with overbars
+%
+/escaped false def
+/drawoverbar false def
+/fontsize 0.0 def
+
+%string1 string2 append -
+/append {
+    2 copy length exch length add % find new length
+    string dup % string1 string2 string string
+    4 2 roll % string string string1 string2
+    2 index 0 3 index
+    % string string string1 string2 string 0 string1
+    putinterval % string string string1 string2
+    exch length exch putinterval
+} bind def
+
+% If drawoverbar is set, draw a line of the same length as the given string
+% string overbarshowline -
+/overbarshowline {
+    % print overbar if necessary
+    stringwidth pop 0
+    drawoverbar {
+        rlineto
+        gsave stroke grestore
+    } {
+        rmoveto
+    } ifelse
+} bind def
+
+% Draws overbars for the given string, then shows the string itself
+% string overbarshow
+/overbarshow {
+    /overbarshowacc () def
+    /overbarshowtxt () def
+
+    gsave
+    fontsize 10.0 div setlinewidth
+    0 fontsize rmoveto  % move to (0,overbarheight)
+
+    {				% work through string
+	escaped {
+	    % the last character was the escape
+	    % handle the escape
+	    % is it an _ = 95?
+	    dup 95 eq {
+		pop  % we don't need the character anymore
+                overbarshowacc overbarshowline
+                % toggle drawing overbars
+		/drawoverbar drawoverbar not def
+
+                % Append the contents off the accumulator to the text
+                % string we're eventually going to show
+                /overbarshowtxt overbarshowtxt overbarshowacc append def
+
+                % clear accumulator
+                /overbarshowacc () def
+	    } {
+                % add to accumulator
+                (\\ ) dup 1 4 -1 roll put
+                overbarshowacc exch append
+                /overbarshowacc exch def
+	    } ifelse
+	    % and reset the flag
+	    /escaped false def
+	} {
+	    % check for escape character \ = 92
+	    dup 92 eq {
+		% yes, escape character, set flag
+		/escaped true def
+		pop % drop character
+	    } {
+                % add to accumulator
+                ( ) dup 0 4 -1 roll put
+                overbarshowacc exch append
+                /overbarshowacc exch def
+	    } ifelse
+	} ifelse
+    } forall
+    % Catch any leftovers
+    overbarshowacc overbarshowline
+    overbarshowtxt overbarshowacc append
+
+    grestore
+    show
+} bind def
+
+% 
+% hcenter rjustify vcenter vjustify spacing [(line1) (line2) ... ] rot x y size text -
+/stringw 0.0 def
+/stringh 0.0 def
+/spacing 0.0 def
+/strings [ ] def
+/stringtxt ( ) def
+/stringcount 0 def
+/rot 0.0 def
+
+/text {
+    gsave	        % save state for later
+    /drawoverbar false def      % start by not drawing overbars
+
+    dup /fontsize exch def  % save font size for corrections later
+    % do font selection 
+    /gEDAFont findfont
+    exch scalefont
+    setfont
+
+    % set up coordinates
+    translate           % move origin to given point
+    rotate		% rotate so that text is drawn
+    0 0 moveto
+    dup length /stringcount exch def			% Get number of strings
+    /strings exch def     				% save strings
+    /spacing exch def
+    % do we have more than 1 string to render?
+    stringcount 1 eq {
+	/stringtxt strings aload pop def		% get the string 
+	/stringw stringtxt mystringwidth pop neg def	% get the -width
+	/stringh stringtxt stringheight exch pop neg def% get the -height
+
+	% First do vertical calculations
+	% hcenter rjustify vcenter vjustify 
+	% vertical justification
+	{ 0 stringh rmoveto } if 
+	% vertical center
+	{ 0 stringh 0.3571425 mul rmoveto } if  % not 0.5, so that
+						% it looks nicer
+	% Then do horizontal calculations
+	% right justify
+	{ stringw 0 rmoveto } if
+	% center
+	{ stringw 2.0 div 0 rmoveto } if
+	% Draw the text
+	stringtxt overbarshow
+    } {
+	% More than one line, compute bounding box for the text
+
+	% vertical height, don't use the actual hieght of the characters
+	% assume that the user wants to make the baselines line up with two
+	% text boxes placed side by side
+	/stringh stringcount spacing mul neg def
+	% Now figure out horizontal size, this amounts to keeping track
+	% of the longest string
+	/stringw 0.0 def
+	strings {
+	    mystringwidth pop
+	    dup stringw gt {
+		/stringw exch def
+	    } {
+		pop
+	    } ifelse
+	} forall
+	/stringw stringw neg def 	% get the -width
+	
+	% First do vertical calculations
+	% hcenter rjustify vcenter vjustify 
+	% vertical justification
+	{ 0 stringh fontsize add rmoveto } if 
+	% vertical center
+	{ 0 stringh 0.5 mul rmoveto } if 
+	% Then do horizontal calculations
+	% right justify
+	{ stringw 0 rmoveto } if
+	% center
+	{ stringw 2.0 div 0 rmoveto } if
+	% now move up to the first line and begin rendering
+	0 stringcount 1 sub spacing mul rmoveto
+	strings {
+	    gsave		% Save starting point
+	    overbarshow		% render the text
+	    grestore
+	    0 spacing neg rmoveto
+	} forall
+    } ifelse
+    grestore 	% Restore old state
+} bind def
+
+
+%%EndProlog
+%%Page: 1 1
+/gEDAFont ISOLatin1Extended /Helvetica RE
+2 setlinecap
+0.072000 0.072000 scale
+16227 1000 translate 90 rotate
+0.454545 0.454545 scale
+-16600 -25900 translate
+gsave
+39500 49500 39200 49500 10 line
+gsave
+false false true false 208.000000 [(PB0) ] 0 39550 49550 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(1) ] 0 39450 49600 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(XCK0/T0) ] 0 39550 49450 108.333336 text
+grestore
+39200 47700 39500 47700 10 line
+gsave
+false false true false 208.000000 [(PB6) ] 0 39550 47750 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(7) ] 0 39450 47800 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(MISO) ] 0 39550 47650 108.333336 text
+grestore
+39500 44400 39200 44400 10 line
+gsave
+false false true false 208.000000 [(PD4) ] 0 39550 44450 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(18) ] 0 39450 44500 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(XCK1/OC1B) ] 0 39550 44350 108.333336 text
+grestore
+39500 49200 39200 49200 10 line
+gsave
+false false true false 208.000000 [(PB1) ] 0 39550 49250 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(2) ] 0 39450 49300 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(CLKO/T1) ] 0 39550 49150 108.333336 text
+grestore
+39500 48900 39200 48900 10 line
+gsave
+false false true false 208.000000 [(PB2) ] 0 39550 48950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(3) ] 0 39450 49000 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(INT2/AIN0) ] 0 39550 48850 108.333336 text
+grestore
+39500 48600 39200 48600 10 line
+gsave
+false false true false 208.000000 [(PB3) ] 0 39550 48650 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(4) ] 0 39450 48700 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(OC0A/AIN1) ] 0 39550 48550 108.333336 text
+grestore
+39500 48300 39200 48300 10 line
+gsave
+false false true false 208.000000 [(PB4) ] 0 39550 48350 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(5) ] 0 39450 48400 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(OC0B/\\_SS\\_) ] 0 39550 48250 108.333336 text
+grestore
+39500 48000 39200 48000 10 line
+gsave
+false false true false 208.000000 [(PB5) ] 0 39550 48050 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(6) ] 0 39450 48100 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(MOSI) ] 0 39550 47950 108.333336 text
+grestore
+41500 49500 41800 49500 10 line
+gsave
+false true true false 208.000000 [(PA0) ] 0 41450 49550 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(40) ] 0 41550 49600 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(ADC0) ] 0 41450 49450 108.333336 text
+grestore
+39200 47400 39500 47400 10 line
+gsave
+false false true false 208.000000 [(PB7) ] 0 39550 47450 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(8) ] 0 39450 47500 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(SCK) ] 0 39550 47350 108.333336 text
+grestore
+39200 47100 39500 47100 10 line
+gsave
+false false true false 208.000000 [(Reset) ] 0 39550 47100 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(9) ] 0 39450 47200 144.444443 text
+grestore
+39200 46800 39500 46800 10 line
+gsave
+false false true false 208.000000 [(Vcc) ] 0 39550 46800 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(10) ] 0 39450 46900 144.444443 text
+grestore
+39200 46500 39500 46500 10 line
+gsave
+false false true false 208.000000 [(GND) ] 0 39550 46500 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(11) ] 0 39450 46600 144.444443 text
+grestore
+39200 46200 39500 46200 10 line
+gsave
+false false true false 208.000000 [(XTAL2) ] 0 39550 46200 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(12) ] 0 39450 46300 144.444443 text
+grestore
+39200 45900 39500 45900 10 line
+gsave
+false false true false 208.000000 [(XTAL1) ] 0 39550 45900 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(13) ] 0 39450 46000 144.444443 text
+grestore
+39200 45600 39500 45600 10 line
+gsave
+false false true false 208.000000 [(PD0) ] 0 39550 45650 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(14) ] 0 39450 45700 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(RXD0) ] 0 39550 45550 108.333336 text
+grestore
+39200 45300 39500 45300 10 line
+gsave
+false false true false 208.000000 [(PD1) ] 0 39550 45350 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(15) ] 0 39450 45400 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(TXD0) ] 0 39550 45250 108.333336 text
+grestore
+39200 45000 39500 45000 10 line
+gsave
+false false true false 208.000000 [(PD2) ] 0 39550 45050 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(16) ] 0 39450 45100 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(RXD1/INT0) ] 0 39550 44950 108.333336 text
+grestore
+39200 44700 39500 44700 10 line
+gsave
+false false true false 208.000000 [(PD3) ] 0 39550 44750 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(17) ] 0 39450 44800 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(TXD1/INT1) ] 0 39550 44650 108.333336 text
+grestore
+39500 44100 39200 44100 10 line
+gsave
+false false true false 208.000000 [(PD5) ] 0 39550 44150 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(19) ] 0 39450 44200 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(OC1A) ] 0 39550 44050 108.333336 text
+grestore
+39500 43800 39200 43800 10 line
+gsave
+false false true false 208.000000 [(PD6) ] 0 39550 43850 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(20) ] 0 39450 43900 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(OC2B/ICP) ] 0 39550 43750 108.333336 text
+grestore
+41500 46200 41800 46200 10 line
+gsave
+false true true false 208.000000 [(PC7) ] 0 41450 46250 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(29) ] 0 41550 46300 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(TOSC2) ] 0 41450 46150 108.333336 text
+grestore
+41500 43800 41800 43800 10 line
+gsave
+false true true false 208.000000 [(PD7) ] 0 41450 43850 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(21) ] 0 41550 43900 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(OC2A) ] 0 41450 43750 108.333336 text
+grestore
+41500 44100 41800 44100 10 line
+gsave
+false true true false 208.000000 [(PC0) ] 0 41450 44150 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(22) ] 0 41550 44200 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(SCL) ] 0 41450 44050 108.333336 text
+grestore
+41500 44400 41800 44400 10 line
+gsave
+false true true false 208.000000 [(PC1) ] 0 41450 44450 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(23) ] 0 41550 44500 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(SDA) ] 0 41450 44350 108.333336 text
+grestore
+41500 45000 41800 45000 10 line
+gsave
+false true true false 208.000000 [(PC3) ] 0 41450 45050 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(25) ] 0 41550 45100 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(TMS) ] 0 41450 44950 108.333336 text
+grestore
+41500 45300 41800 45300 10 line
+gsave
+false true true false 208.000000 [(PC4) ] 0 41450 45350 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(26) ] 0 41550 45400 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(TDO) ] 0 41450 45250 108.333336 text
+grestore
+41500 45600 41800 45600 10 line
+gsave
+false true true false 208.000000 [(PC5) ] 0 41450 45650 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(27) ] 0 41550 45700 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(TDI) ] 0 41450 45550 108.333336 text
+grestore
+41500 44700 41800 44700 10 line
+gsave
+false true true false 208.000000 [(PC2) ] 0 41450 44750 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(24) ] 0 41550 44800 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(TCK) ] 0 41450 44650 108.333336 text
+grestore
+41500 45900 41800 45900 10 line
+gsave
+false true true false 208.000000 [(PC6) ] 0 41450 45950 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(28) ] 0 41550 46000 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(TOSC1) ] 0 41450 45850 108.333336 text
+grestore
+41500 46500 41800 46500 10 line
+gsave
+false true true false 208.000000 [(AVcc) ] 0 41450 46500 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(30) ] 0 41550 46600 144.444443 text
+grestore
+41500 46800 41800 46800 10 line
+gsave
+false true true false 208.000000 [(GND2) ] 0 41450 46800 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(31) ] 0 41550 46900 144.444443 text
+grestore
+41500 47100 41800 47100 10 line
+gsave
+false true true false 208.000000 [(Aref) ] 0 41450 47100 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(32) ] 0 41550 47200 144.444443 text
+grestore
+41500 47400 41800 47400 10 line
+gsave
+false true true false 208.000000 [(PA7) ] 0 41450 47450 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(33) ] 0 41550 47500 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(ADC7) ] 0 41450 47350 108.333336 text
+grestore
+41500 47700 41800 47700 10 line
+gsave
+false true true false 208.000000 [(PA6) ] 0 41450 47750 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(34) ] 0 41550 47800 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(ADC6) ] 0 41450 47650 108.333336 text
+grestore
+41500 48000 41800 48000 10 line
+gsave
+false true true false 208.000000 [(PA5) ] 0 41450 48050 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(35) ] 0 41550 48100 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(ADC5) ] 0 41450 47950 108.333336 text
+grestore
+41500 48300 41800 48300 10 line
+gsave
+false true true false 208.000000 [(PA4) ] 0 41450 48350 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(36) ] 0 41550 48400 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(ADC4) ] 0 41450 48250 108.333336 text
+grestore
+41500 48600 41800 48600 10 line
+gsave
+false true true false 208.000000 [(PA3) ] 0 41450 48650 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(37) ] 0 41550 48700 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(ADC3) ] 0 41450 48550 108.333336 text
+grestore
+41500 48900 41800 48900 10 line
+gsave
+false true true false 208.000000 [(PA2) ] 0 41450 48950 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(38) ] 0 41550 49000 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(ADC2) ] 0 41450 48850 108.333336 text
+grestore
+41500 49200 41800 49200 10 line
+gsave
+false true true false 208.000000 [(PA1) ] 0 41450 49250 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(39) ] 0 41550 49300 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(ADC1) ] 0 41450 49150 108.333336 text
+grestore
+39500 49700 39500 43600 10 line
+39500 43600 41500 43600 10 line
+41500 43600 41500 49700 10 line
+41500 49700 39500 49700 10 line
+grestore
+gsave
+false false false false 260.000000 [(U1) ] 0 40000 47900 180.555557 text
+grestore
+gsave
+true false false true 260.000000 [(ATmega644) ] 0 40500 43500 180.555557 text
+grestore
+gsave
+54100 50000 53800 50000 10 line
+gsave
+false false false false 260.000000 [(EN) ] 0 54155 49995 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(1) ] 0 54005 50045 144.444443 text
+grestore
+53800 48800 54100 48800 10 line
+gsave
+false false false false 260.000000 [(STEP) ] 0 54150 48775 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(7) ] 0 53900 48850 144.444443 text
+grestore
+gsave
+false false false false 260.000000 [(Pololu Stepper Driver) ] 0 53800 50300 180.555557 text
+grestore
+54100 49800 53800 49800 10 line
+gsave
+false false false false 260.000000 [(MS1) ] 0 54155 49795 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(2) ] 0 54005 49845 144.444443 text
+grestore
+54100 49600 53800 49600 10 line
+gsave
+false false false false 260.000000 [(MS2) ] 0 54155 49595 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(3) ] 0 54005 49645 144.444443 text
+grestore
+54100 49400 53800 49400 10 line
+gsave
+false false false false 260.000000 [(MS3) ] 0 54155 49395 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(4) ] 0 54005 49445 144.444443 text
+grestore
+54100 49200 53800 49200 10 line
+gsave
+false false false false 260.000000 [(RST) ] 0 54155 49195 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(5) ] 0 54005 49245 144.444443 text
+grestore
+54100 49000 53800 49000 10 line
+gsave
+false false false false 260.000000 [(SLP) ] 0 54155 48995 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(6) ] 0 54005 49045 144.444443 text
+grestore
+53800 48600 54100 48600 10 line
+gsave
+false false false false 260.000000 [(DIR) ] 0 54150 48575 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(8) ] 0 53900 48650 144.444443 text
+grestore
+55600 48600 55300 48600 10 line
+gsave
+false true false false 208.000000 [(GND) ] 0 55245 48595 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(9) ] 0 55395 48645 144.444443 text
+grestore
+55600 48800 55300 48800 10 line
+gsave
+false true false false 208.000000 [(VDD) ] 0 55245 48795 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(10) ] 0 55395 48845 144.444443 text
+grestore
+55600 49000 55300 49000 10 line
+gsave
+false true false false 208.000000 [(1B) ] 0 55245 48995 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(11) ] 0 55395 49045 144.444443 text
+grestore
+55600 49200 55300 49200 10 line
+gsave
+false true false false 260.000000 [(1A) ] 0 55245 49195 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(12) ] 0 55395 49245 144.444443 text
+grestore
+55600 49400 55300 49400 10 line
+gsave
+false true false false 260.000000 [(2A) ] 0 55245 49395 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(13) ] 0 55395 49445 144.444443 text
+grestore
+55600 49600 55300 49600 10 line
+gsave
+false true false false 260.000000 [(2B) ] 0 55245 49595 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(14) ] 0 55395 49645 144.444443 text
+grestore
+55600 49800 55300 49800 10 line
+gsave
+false true false false 260.000000 [(GND2) ] 0 55245 49795 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(15) ] 0 55395 49845 144.444443 text
+grestore
+55600 50000 55300 50000 10 line
+gsave
+false true false false 260.000000 [(VMOT) ] 0 55245 49995 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(16) ] 0 55395 50045 144.444443 text
+grestore
+55300 50200 54100 50200 10 line
+55300 50200 55300 48400 10 line
+55300 48400 54100 48400 10 line
+54100 48400 54100 50200 10 line
+54400 50000 54300 50000 10 line
+grestore
+gsave
+false false false false 260.000000 [(U2) ] 0 54600 50500 180.555557 text
+grestore
+gsave
+50500 50000 50500 50200 10 line
+50350 50200 50650 50200 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 50375 50250 144.444443 text
+grestore
+grestore
+gsave
+51300 49900 51200 49700 10 line
+51200 49700 51100 49900 10 line
+51100 49900 51000 49700 10 line
+51000 49700 50900 49900 10 line
+51300 49900 51400 49700 10 line
+51400 49700 51450 49800 10 line
+51600 49800 51450 49800 10 line
+50700 49800 50852 49800 10 line
+50901 49900 50850 49800 10 line
+grestore
+gsave
+false false false false 260.000000 [(R4) ] 0 50900 50000 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1K) ] 0 50900 49500 180.555557 text
+grestore
+50500 49800 50700 49800 10 line
+53800 49000 53600 49000 10 line
+gsave
+55900 48200 55900 48400 10 line
+55800 48200 56000 48200 10 line
+55855 48150 55945 48150 10 line
+55880 48110 55920 48110 10 line
+grestore
+gsave
+57300 50400 57300 50200 10 line
+57400 50400 57200 50400 10 line
+57345 50450 57255 50450 10 line
+57320 50490 57280 50490 10 line
+grestore
+gsave
+57300 48400 57300 48200 10 line
+57450 48200 57150 48200 10 line
+gsave
+false true false true 208.000000 [(+5V) ] 0 57425 48150 144.444443 text
+grestore
+grestore
+gsave
+55900 50600 55900 50800 10 line
+55750 50800 56050 50800 10 line
+gsave
+false false false false 208.000000 [(+12V) ] 0 55775 50850 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(Vmot:1) ] 0 56000 50600 144.444443 text
+grestore
+55900 50000 55900 50600 10 line
+57300 50200 57300 49800 10 line
+57300 49800 55600 49800 10 line
+57300 48800 57300 48400 10 line
+55900 48400 55900 48600 10 line
+gsave
+54100 46800 53800 46800 10 line
+gsave
+false false false false 260.000000 [(EN) ] 0 54155 46795 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(1) ] 0 54005 46845 144.444443 text
+grestore
+53800 45600 54100 45600 10 line
+gsave
+false false false false 260.000000 [(STEP) ] 0 54150 45575 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(7) ] 0 53900 45650 144.444443 text
+grestore
+gsave
+false false false false 260.000000 [(Pololu Stepper Driver) ] 0 53800 47100 180.555557 text
+grestore
+54100 46600 53800 46600 10 line
+gsave
+false false false false 260.000000 [(MS1) ] 0 54155 46595 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(2) ] 0 54005 46645 144.444443 text
+grestore
+54100 46400 53800 46400 10 line
+gsave
+false false false false 260.000000 [(MS2) ] 0 54155 46395 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(3) ] 0 54005 46445 144.444443 text
+grestore
+54100 46200 53800 46200 10 line
+gsave
+false false false false 260.000000 [(MS3) ] 0 54155 46195 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(4) ] 0 54005 46245 144.444443 text
+grestore
+54100 46000 53800 46000 10 line
+gsave
+false false false false 260.000000 [(RST) ] 0 54155 45995 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(5) ] 0 54005 46045 144.444443 text
+grestore
+54100 45800 53800 45800 10 line
+gsave
+false false false false 260.000000 [(SLP) ] 0 54155 45795 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(6) ] 0 54005 45845 144.444443 text
+grestore
+53800 45400 54100 45400 10 line
+gsave
+false false false false 260.000000 [(DIR) ] 0 54150 45375 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(8) ] 0 53900 45450 144.444443 text
+grestore
+55600 45400 55300 45400 10 line
+gsave
+false true false false 208.000000 [(GND) ] 0 55245 45395 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(9) ] 0 55395 45445 144.444443 text
+grestore
+55600 45600 55300 45600 10 line
+gsave
+false true false false 208.000000 [(VDD) ] 0 55245 45595 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(10) ] 0 55395 45645 144.444443 text
+grestore
+55600 45800 55300 45800 10 line
+gsave
+false true false false 208.000000 [(1B) ] 0 55245 45795 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(11) ] 0 55395 45845 144.444443 text
+grestore
+55600 46000 55300 46000 10 line
+gsave
+false true false false 260.000000 [(1A) ] 0 55245 45995 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(12) ] 0 55395 46045 144.444443 text
+grestore
+55600 46200 55300 46200 10 line
+gsave
+false true false false 260.000000 [(2A) ] 0 55245 46195 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(13) ] 0 55395 46245 144.444443 text
+grestore
+55600 46400 55300 46400 10 line
+gsave
+false true false false 260.000000 [(2B) ] 0 55245 46395 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(14) ] 0 55395 46445 144.444443 text
+grestore
+55600 46600 55300 46600 10 line
+gsave
+false true false false 260.000000 [(GND2) ] 0 55245 46595 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(15) ] 0 55395 46645 144.444443 text
+grestore
+55600 46800 55300 46800 10 line
+gsave
+false true false false 260.000000 [(VMOT) ] 0 55245 46795 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(16) ] 0 55395 46845 144.444443 text
+grestore
+55300 47000 54100 47000 10 line
+55300 47000 55300 45200 10 line
+55300 45200 54100 45200 10 line
+54100 45200 54100 47000 10 line
+54400 46800 54300 46800 10 line
+grestore
+gsave
+false false false false 260.000000 [(U3) ] 0 54600 47300 180.555557 text
+grestore
+gsave
+50500 46800 50500 47000 10 line
+50350 47000 50650 47000 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 50375 47050 144.444443 text
+grestore
+grestore
+gsave
+51300 46700 51200 46500 10 line
+51200 46500 51100 46700 10 line
+51100 46700 51000 46500 10 line
+51000 46500 50900 46700 10 line
+51300 46700 51400 46500 10 line
+51400 46500 51450 46600 10 line
+51600 46600 51450 46600 10 line
+50700 46600 50852 46600 10 line
+50901 46700 50850 46600 10 line
+grestore
+gsave
+false false false false 260.000000 [(R6) ] 0 50900 46800 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1K) ] 0 50900 46300 180.555557 text
+grestore
+51800 46200 52000 46200 10 line
+51800 46400 52000 46400 10 line
+50500 46600 50700 46600 10 line
+53600 46000 53800 46000 10 line
+53800 45800 53600 45800 10 line
+51800 46200 51800 46600 10 line
+gsave
+54100 43300 53800 43300 10 line
+gsave
+false false false false 260.000000 [(EN) ] 0 54155 43295 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(1) ] 0 54005 43345 144.444443 text
+grestore
+53800 42100 54100 42100 10 line
+gsave
+false false false false 260.000000 [(STEP) ] 0 54150 42075 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(7) ] 0 53900 42150 144.444443 text
+grestore
+gsave
+false false false false 260.000000 [(Pololu Stepper Driver) ] 0 53800 43600 180.555557 text
+grestore
+54100 43100 53800 43100 10 line
+gsave
+false false false false 260.000000 [(MS1) ] 0 54155 43095 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(2) ] 0 54005 43145 144.444443 text
+grestore
+54100 42900 53800 42900 10 line
+gsave
+false false false false 260.000000 [(MS2) ] 0 54155 42895 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(3) ] 0 54005 42945 144.444443 text
+grestore
+54100 42700 53800 42700 10 line
+gsave
+false false false false 260.000000 [(MS3) ] 0 54155 42695 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(4) ] 0 54005 42745 144.444443 text
+grestore
+54100 42500 53800 42500 10 line
+gsave
+false false false false 260.000000 [(RST) ] 0 54155 42495 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(5) ] 0 54005 42545 144.444443 text
+grestore
+54100 42300 53800 42300 10 line
+gsave
+false false false false 260.000000 [(SLP) ] 0 54155 42295 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(6) ] 0 54005 42345 144.444443 text
+grestore
+53800 41900 54100 41900 10 line
+gsave
+false false false false 260.000000 [(DIR) ] 0 54150 41875 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(8) ] 0 53900 41950 144.444443 text
+grestore
+55600 41900 55300 41900 10 line
+gsave
+false true false false 208.000000 [(GND) ] 0 55245 41895 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(9) ] 0 55395 41945 144.444443 text
+grestore
+55600 42100 55300 42100 10 line
+gsave
+false true false false 208.000000 [(VDD) ] 0 55245 42095 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(10) ] 0 55395 42145 144.444443 text
+grestore
+55600 42300 55300 42300 10 line
+gsave
+false true false false 208.000000 [(1B) ] 0 55245 42295 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(11) ] 0 55395 42345 144.444443 text
+grestore
+55600 42500 55300 42500 10 line
+gsave
+false true false false 260.000000 [(1A) ] 0 55245 42495 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(12) ] 0 55395 42545 144.444443 text
+grestore
+55600 42700 55300 42700 10 line
+gsave
+false true false false 260.000000 [(2A) ] 0 55245 42695 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(13) ] 0 55395 42745 144.444443 text
+grestore
+55600 42900 55300 42900 10 line
+gsave
+false true false false 260.000000 [(2B) ] 0 55245 42895 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(14) ] 0 55395 42945 144.444443 text
+grestore
+55600 43100 55300 43100 10 line
+gsave
+false true false false 260.000000 [(GND2) ] 0 55245 43095 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(15) ] 0 55395 43145 144.444443 text
+grestore
+55600 43300 55300 43300 10 line
+gsave
+false true false false 260.000000 [(VMOT) ] 0 55245 43295 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(16) ] 0 55395 43345 144.444443 text
+grestore
+55300 43500 54100 43500 10 line
+55300 43500 55300 41700 10 line
+55300 41700 54100 41700 10 line
+54100 41700 54100 43500 10 line
+54400 43300 54300 43300 10 line
+grestore
+gsave
+false false false false 260.000000 [(U4) ] 0 54600 43800 180.555557 text
+grestore
+gsave
+50400 43300 50400 43500 10 line
+50250 43500 50550 43500 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 50275 43550 144.444443 text
+grestore
+grestore
+gsave
+51300 43200 51200 43000 10 line
+51200 43000 51100 43200 10 line
+51100 43200 51000 43000 10 line
+51000 43000 50900 43200 10 line
+51300 43200 51400 43000 10 line
+51400 43000 51450 43100 10 line
+51600 43100 51450 43100 10 line
+50700 43100 50852 43100 10 line
+50901 43200 50850 43100 10 line
+grestore
+gsave
+false false false false 260.000000 [(R8) ] 0 50900 43300 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1K) ] 0 50900 42800 180.555557 text
+grestore
+50400 43100 50700 43100 10 line
+53600 42500 53800 42500 10 line
+53800 42300 53600 42300 10 line
+51800 42700 51800 43100 10 line
+gsave
+54100 40100 53800 40100 10 line
+gsave
+false false false false 260.000000 [(EN) ] 0 54155 40095 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(1) ] 0 54005 40145 144.444443 text
+grestore
+53800 38900 54100 38900 10 line
+gsave
+false false false false 260.000000 [(STEP) ] 0 54150 38875 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(7) ] 0 53900 38950 144.444443 text
+grestore
+gsave
+false false false false 260.000000 [(Pololu Stepper Driver) ] 0 53800 40400 180.555557 text
+grestore
+54100 39900 53800 39900 10 line
+gsave
+false false false false 260.000000 [(MS1) ] 0 54155 39895 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(2) ] 0 54005 39945 144.444443 text
+grestore
+54100 39700 53800 39700 10 line
+gsave
+false false false false 260.000000 [(MS2) ] 0 54155 39695 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(3) ] 0 54005 39745 144.444443 text
+grestore
+54100 39500 53800 39500 10 line
+gsave
+false false false false 260.000000 [(MS3) ] 0 54155 39495 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(4) ] 0 54005 39545 144.444443 text
+grestore
+54100 39300 53800 39300 10 line
+gsave
+false false false false 260.000000 [(RST) ] 0 54155 39295 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(5) ] 0 54005 39345 144.444443 text
+grestore
+54100 39100 53800 39100 10 line
+gsave
+false false false false 260.000000 [(SLP) ] 0 54155 39095 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(6) ] 0 54005 39145 144.444443 text
+grestore
+53800 38700 54100 38700 10 line
+gsave
+false false false false 260.000000 [(DIR) ] 0 54150 38675 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(8) ] 0 53900 38750 144.444443 text
+grestore
+55600 38700 55300 38700 10 line
+gsave
+false true false false 208.000000 [(GND) ] 0 55245 38695 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(9) ] 0 55395 38745 144.444443 text
+grestore
+55600 38900 55300 38900 10 line
+gsave
+false true false false 208.000000 [(VDD) ] 0 55245 38895 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(10) ] 0 55395 38945 144.444443 text
+grestore
+55600 39100 55300 39100 10 line
+gsave
+false true false false 208.000000 [(1B) ] 0 55245 39095 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(11) ] 0 55395 39145 144.444443 text
+grestore
+55600 39300 55300 39300 10 line
+gsave
+false true false false 260.000000 [(1A) ] 0 55245 39295 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(12) ] 0 55395 39345 144.444443 text
+grestore
+55600 39500 55300 39500 10 line
+gsave
+false true false false 260.000000 [(2A) ] 0 55245 39495 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(13) ] 0 55395 39545 144.444443 text
+grestore
+55600 39700 55300 39700 10 line
+gsave
+false true false false 260.000000 [(2B) ] 0 55245 39695 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(14) ] 0 55395 39745 144.444443 text
+grestore
+55600 39900 55300 39900 10 line
+gsave
+false true false false 260.000000 [(GND2) ] 0 55245 39895 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(15) ] 0 55395 39945 144.444443 text
+grestore
+55600 40100 55300 40100 10 line
+gsave
+false true false false 260.000000 [(VMOT) ] 0 55245 40095 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(16) ] 0 55395 40145 144.444443 text
+grestore
+55300 40300 54100 40300 10 line
+55300 40300 55300 38500 10 line
+55300 38500 54100 38500 10 line
+54100 38500 54100 40300 10 line
+54400 40100 54300 40100 10 line
+grestore
+gsave
+false false false false 260.000000 [(U5) ] 0 54600 40600 180.555557 text
+grestore
+gsave
+50500 40100 50500 40300 10 line
+50350 40300 50650 40300 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 50375 40350 144.444443 text
+grestore
+grestore
+gsave
+51300 40000 51200 39800 10 line
+51200 39800 51100 40000 10 line
+51100 40000 51000 39800 10 line
+51000 39800 50900 40000 10 line
+51300 40000 51400 39800 10 line
+51400 39800 51450 39900 10 line
+51600 39900 51450 39900 10 line
+50700 39900 50852 39900 10 line
+50901 40000 50850 39900 10 line
+grestore
+gsave
+false false false false 260.000000 [(R10) ] 0 50900 40100 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1K) ] 0 50900 39600 180.555557 text
+grestore
+50500 39900 50700 39900 10 line
+53600 39300 53800 39300 10 line
+53800 39100 53600 39100 10 line
+51800 39500 51800 39900 10 line
+gsave
+30600 38400 30500 38200 10 line
+30500 38200 30400 38400 10 line
+30400 38400 30300 38200 10 line
+30300 38200 30200 38400 10 line
+30600 38400 30700 38200 10 line
+30700 38200 30750 38300 10 line
+30900 38300 30750 38300 10 line
+30000 38300 30152 38300 10 line
+30201 38400 30150 38300 10 line
+grestore
+gsave
+false false false false 260.000000 [(R11) ] 0 30200 38500 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(10R) ] 0 30200 38000 180.555557 text
+grestore
+gsave
+30600 42100 30500 41900 10 line
+30500 41900 30400 42100 10 line
+30400 42100 30300 41900 10 line
+30300 41900 30200 42100 10 line
+30600 42100 30700 41900 10 line
+30700 41900 30750 42000 10 line
+30900 42000 30750 42000 10 line
+30000 42000 30152 42000 10 line
+30201 42100 30150 42000 10 line
+grestore
+gsave
+false false false false 260.000000 [(R12) ] 0 30200 42200 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(10R) ] 0 30200 41700 180.555557 text
+grestore
+gsave
+25300 43000 25500 43000 10 line
+gsave
+false true false false 208.000000 [(1) ] 0 25450 43050 144.444443 text
+grestore
+26200 43000 26000 43000 10 line
+gsave
+false false false false 208.000000 [(2) ] 0 26050 43050 144.444443 text
+grestore
+25700 43100 25800 43000 10 line
+25800 43000 25700 42900 10 line
+25700 43100 25700 42900 10 line
+25800 43100 25800 42900 10 line
+25800 43000 26000 43000 10 line
+25700 43000 25500 43000 10 line
+25750 43000 200 0 360 10 darc
+25816 43303 25917 43404 10 line
+25917 43404 25921 43355 10 line
+25921 43355 26022 43457 10 line
+25784 43218 25885 43318 10 line
+25885 43318 25889 43269 10 line
+25889 43269 25990 43370 10 line
+grestore
+gsave
+false false false false 260.000000 [(LED2) ] 0 26100 43200 180.555557 text
+grestore
+gsave
+24400 43100 24300 42900 10 line
+24300 42900 24200 43100 10 line
+24200 43100 24100 42900 10 line
+24100 42900 24000 43100 10 line
+24400 43100 24500 42900 10 line
+24500 42900 24550 43000 10 line
+24700 43000 24550 43000 10 line
+23800 43000 23952 43000 10 line
+24001 43100 23950 43000 10 line
+grestore
+gsave
+false false false false 260.000000 [(R14) ] 0 24000 43200 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(560R) ] 0 24000 42800 180.555557 text
+grestore
+gsave
+23200 44200 23200 44400 10 line
+23050 44400 23350 44400 10 line
+gsave
+false false false false 208.000000 [(+12V) ] 0 23075 44450 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(Vheat:1) ] 0 23300 44200 144.444443 text
+grestore
+gsave
+29800 40800 29800 41000 10 line
+29700 40800 29900 40800 10 line
+29755 40750 29845 40750 10 line
+29780 40710 29820 40710 10 line
+grestore
+25300 43000 24700 43000 10 line
+23200 43000 23200 44200 10 line
+49800 48800 53800 48800 10 line
+50000 48600 53800 48600 10 line
+49800 45000 49800 48800 10 line
+41800 44700 50000 44700 10 line
+50000 44700 50000 48600 10 line
+53800 45600 43900 45600 10 line
+53800 45400 43700 45400 10 line
+53800 42100 49500 42100 10 line
+49500 42100 49500 48300 10 line
+53800 41900 49300 41900 10 line
+49300 41900 49300 48000 10 line
+41800 48900 49000 48900 10 line
+53800 38900 49000 38900 10 line
+49000 38900 49000 48900 10 line
+53800 38700 48800 38700 10 line
+48800 38700 48800 48600 10 line
+49800 45000 41800 45000 10 line
+31000 42000 31000 48600 10 line
+40900 29100 40900 29500 10 line
+39300 29100 39300 29500 10 line
+39300 27400 39300 27700 10 line
+gsave
+32600 27700 32600 27900 10 line
+32500 27700 32700 27700 10 line
+32555 27650 32645 27650 10 line
+32580 27610 32620 27610 10 line
+grestore
+32600 27900 32600 30400 10 line
+gsave
+34000 33800 34000 34000 10 line
+33850 34000 34150 34000 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 33875 34050 144.444443 text
+grestore
+grestore
+36600 50000 36600 46800 10 line
+38500 30900 38500 33500 10 line
+41800 43800 42300 43800 10 line
+44500 29100 44500 31300 10 line
+31300 48300 31300 38300 10 line
+39300 31400 39300 31700 10 line
+38500 31700 40900 31700 10 line
+39300 30500 39300 29500 10 line
+41800 46500 44100 46500 10 line
+42000 51400 42000 50300 10 line
+gsave
+45500 46400 45500 46600 10 line
+45400 46400 45600 46400 10 line
+45455 46350 45545 46350 10 line
+45480 46310 45520 46310 10 line
+grestore
+41800 46800 45500 46800 10 line
+gsave
+35600 44500 35400 44500 10 line
+35100 44500 34900 44500 10 line
+35150 44400 35350 44400 10 line
+35350 44400 35350 44600 10 line
+35350 44600 35150 44600 10 line
+35150 44600 35150 44400 10 line
+35400 44360 35400 44640 10 line
+35100 44360 35100 44640 10 line
+newpath
+35600 44500
+25
+0 360 arc
+fill
+newpath
+35600 44500
+25
+0 360 arc
+fill
+newpath
+34900 44500
+25
+0 360 arc
+fill
+newpath
+34900 44500
+25
+0 360 arc
+fill
+grestore
+gsave
+false true false true 260.000000 [(U6) ] 0 35400 44300 180.555557 text
+grestore
+gsave
+false true false true 260.000000 [(20 MHz) ] 0 35600 44800 180.555557 text
+grestore
+gsave
+34900 43900 34900 43700 10 line
+34900 43000 34900 43200 10 line
+35100 43500 34700 43500 10 line
+35100 43400 34700 43400 10 line
+34900 43200 34900 43400 10 line
+34900 43500 34900 43700 10 line
+grestore
+gsave
+false false false false 260.000000 [(C3) ] 270 35200 43700 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(22 pF) ] 270 34500 43700 180.555557 text
+grestore
+gsave
+35600 43900 35600 43700 10 line
+35600 43000 35600 43200 10 line
+35800 43500 35400 43500 10 line
+35800 43400 35400 43400 10 line
+35600 43200 35600 43400 10 line
+35600 43500 35600 43700 10 line
+grestore
+gsave
+false false false false 260.000000 [(C4) ] 270 35900 43700 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(22 pF) ] 270 35200 43700 180.555557 text
+grestore
+gsave
+35600 42100 35600 42300 10 line
+35500 42100 35700 42100 10 line
+35555 42050 35645 42050 10 line
+35580 42010 35620 42010 10 line
+grestore
+35600 42300 35600 43000 10 line
+34900 43000 34900 42600 10 line
+35600 42600 34900 42600 10 line
+gsave
+38700 46500 38900 46500 10 line
+38700 46600 38700 46400 10 line
+38650 46545 38650 46455 10 line
+38610 46520 38610 46480 10 line
+grestore
+38900 46500 39200 46500 10 line
+gsave
+28400 49900 28400 50100 10 line
+28400 50800 28400 50600 10 line
+28200 50300 28600 50300 10 line
+28200 50400 28600 50400 10 line
+28400 50600 28400 50400 10 line
+28400 50300 28400 50100 10 line
+grestore
+gsave
+false false false false 260.000000 [(C21) ] 90 28100 50000 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 90 28100 50500 180.555557 text
+grestore
+gsave
+18900 57200 18900 57000 10 line
+19000 57200 18800 57200 10 line
+18945 57250 18855 57250 10 line
+18920 57290 18880 57290 10 line
+grestore
+18900 56600 18900 57000 10 line
+gsave
+40100 32900 40100 32700 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 40150 32750 144.444443 text
+grestore
+40100 32000 40100 32200 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 40150 32150 144.444443 text
+grestore
+40200 32500 40100 32400 10 line
+40100 32400 40000 32500 10 line
+40200 32500 40000 32500 10 line
+40200 32400 40000 32400 10 line
+40100 32400 40100 32200 10 line
+40100 32500 40100 32700 10 line
+40100 32450 200 0 360 10 darc
+40403 32384 40504 32283 10 line
+40504 32283 40455 32279 10 line
+40455 32279 40557 32178 10 line
+40318 32416 40418 32315 10 line
+40418 32315 40369 32311 10 line
+40369 32311 40470 32210 10 line
+grestore
+gsave
+false false false false 260.000000 [(LED3) ] 270 40300 32100 180.555557 text
+grestore
+gsave
+40200 30800 40000 30900 10 line
+40000 30900 40200 31000 10 line
+40200 31000 40000 31100 10 line
+40000 31100 40200 31200 10 line
+40200 30800 40000 30700 10 line
+40000 30700 40100 30650 10 line
+40100 30500 40100 30650 10 line
+40100 31400 40100 31248 10 line
+40200 31199 40100 31250 10 line
+grestore
+gsave
+false false false false 260.000000 [(R16) ] 270 40300 31200 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1K) ] 270 39800 31200 180.555557 text
+grestore
+40100 33200 38500 33200 10 line
+33600 31400 33600 31700 10 line
+33600 31700 34000 31700 10 line
+gsave
+32600 31300 32600 31100 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 32650 31150 144.444443 text
+grestore
+32600 30400 32600 30600 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 32650 30550 144.444443 text
+grestore
+32700 30900 32600 30800 10 line
+32600 30800 32500 30900 10 line
+32700 30900 32500 30900 10 line
+32700 30800 32500 30800 10 line
+32600 30800 32600 30600 10 line
+32600 30900 32600 31100 10 line
+32600 30850 200 0 360 10 darc
+32903 30784 33004 30683 10 line
+33004 30683 32955 30679 10 line
+32955 30679 33057 30578 10 line
+32818 30816 32918 30715 10 line
+32918 30715 32869 30711 10 line
+32869 30711 32970 30610 10 line
+grestore
+gsave
+false false false false 260.000000 [(LED4) ] 270 32800 30500 180.555557 text
+grestore
+gsave
+32700 32200 32500 32300 10 line
+32500 32300 32700 32400 10 line
+32700 32400 32500 32500 10 line
+32500 32500 32700 32600 10 line
+32700 32200 32500 32100 10 line
+32500 32100 32600 32050 10 line
+32600 31900 32600 32050 10 line
+32600 32800 32600 32648 10 line
+32700 32599 32600 32650 10 line
+grestore
+gsave
+false false false false 260.000000 [(R18) ] 270 32800 32600 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1K) ] 270 32300 32600 180.555557 text
+grestore
+32600 31300 32600 31900 10 line
+32600 32800 32600 33300 10 line
+32600 33300 34000 33300 10 line
+33600 29500 33600 30500 10 line
+32600 29500 40900 29500 10 line
+34000 27000 34000 33800 10 line
+25400 45600 39200 45600 10 line
+25400 45600 25400 52100 10 line
+39200 45300 28800 45300 10 line
+28800 45300 28800 52500 10 line
+40100 33200 40100 32900 10 line
+40100 32000 40100 31400 10 line
+gsave
+57300 47200 57300 47000 10 line
+57400 47200 57200 47200 10 line
+57345 47250 57255 47250 10 line
+57320 47290 57280 47290 10 line
+grestore
+gsave
+55900 47400 55900 47600 10 line
+55750 47600 56050 47600 10 line
+gsave
+false false false false 208.000000 [(+12V) ] 0 55775 47650 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(Vmot:1) ] 0 56000 47400 144.444443 text
+grestore
+55900 46800 55900 47400 10 line
+57300 47000 57300 46600 10 line
+57300 46600 55600 46600 10 line
+gsave
+56200 46800 56400 46800 10 line
+57100 46800 56900 46800 10 line
+56600 47000 56600 46600 10 line
+56700 47000 56700 46600 10 line
+56900 46800 56700 46800 10 line
+56600 46800 56400 46800 10 line
+grestore
+gsave
+false false false false 260.000000 [(C8) ] 0 56400 47100 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 46400 180.555557 text
+grestore
+gsave
+57300 43700 57300 43500 10 line
+57400 43700 57200 43700 10 line
+57345 43750 57255 43750 10 line
+57320 43790 57280 43790 10 line
+grestore
+gsave
+55900 43900 55900 44100 10 line
+55750 44100 56050 44100 10 line
+gsave
+false false false false 208.000000 [(+12V) ] 0 55775 44150 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(Vmot:1) ] 0 56000 43900 144.444443 text
+grestore
+55900 43300 55900 43900 10 line
+57300 43500 57300 43100 10 line
+57300 43100 55600 43100 10 line
+gsave
+56200 43300 56400 43300 10 line
+57100 43300 56900 43300 10 line
+56600 43500 56600 43100 10 line
+56700 43500 56700 43100 10 line
+56900 43300 56700 43300 10 line
+56600 43300 56400 43300 10 line
+grestore
+gsave
+false false false false 260.000000 [(C9) ] 0 56400 43600 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 42900 180.555557 text
+grestore
+55600 43300 56200 43300 10 line
+57100 43300 57300 43300 10 line
+gsave
+57300 40500 57300 40300 10 line
+57400 40500 57200 40500 10 line
+57345 40550 57255 40550 10 line
+57320 40590 57280 40590 10 line
+grestore
+gsave
+55900 40700 55900 40900 10 line
+55750 40900 56050 40900 10 line
+gsave
+false false false false 208.000000 [(+12V) ] 0 55775 40950 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(Vmot:1) ] 0 56000 40700 144.444443 text
+grestore
+55900 40100 55900 40700 10 line
+57300 40300 57300 39900 10 line
+57300 39900 55600 39900 10 line
+gsave
+56200 40100 56400 40100 10 line
+57100 40100 56900 40100 10 line
+56600 40300 56600 39900 10 line
+56700 40300 56700 39900 10 line
+56900 40100 56700 40100 10 line
+56600 40100 56400 40100 10 line
+grestore
+gsave
+false false false false 260.000000 [(C10) ] 0 56400 40400 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 39700 180.555557 text
+grestore
+55600 40100 56200 40100 10 line
+57100 40100 57300 40100 10 line
+51800 49400 51800 49800 10 line
+gsave
+56200 48600 56400 48600 10 line
+57100 48600 56900 48600 10 line
+56600 48800 56600 48400 10 line
+56700 48800 56700 48400 10 line
+56900 48600 56700 48600 10 line
+56600 48600 56400 48600 10 line
+grestore
+gsave
+false false false false 260.000000 [(C11) ] 0 56400 48900 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 48200 180.555557 text
+grestore
+57300 48800 55600 48800 10 line
+55600 48600 56200 48600 10 line
+57100 48600 57300 48600 10 line
+gsave
+55900 45000 55900 45200 10 line
+55800 45000 56000 45000 10 line
+55855 44950 55945 44950 10 line
+55880 44910 55920 44910 10 line
+grestore
+gsave
+57300 45200 57300 45000 10 line
+57450 45000 57150 45000 10 line
+gsave
+false true false true 208.000000 [(+5V) ] 0 57425 44950 144.444443 text
+grestore
+grestore
+57300 45600 57300 45200 10 line
+55900 45200 55900 45400 10 line
+gsave
+56200 45400 56400 45400 10 line
+57100 45400 56900 45400 10 line
+56600 45600 56600 45200 10 line
+56700 45600 56700 45200 10 line
+56900 45400 56700 45400 10 line
+56600 45400 56400 45400 10 line
+grestore
+gsave
+false false false false 260.000000 [(C12) ] 0 56400 45700 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 45000 180.555557 text
+grestore
+57300 45600 55600 45600 10 line
+55600 45400 56200 45400 10 line
+57100 45400 57300 45400 10 line
+gsave
+55900 41500 55900 41700 10 line
+55800 41500 56000 41500 10 line
+55855 41450 55945 41450 10 line
+55880 41410 55920 41410 10 line
+grestore
+gsave
+57300 41700 57300 41500 10 line
+57450 41500 57150 41500 10 line
+gsave
+false true false true 208.000000 [(+5V) ] 0 57425 41450 144.444443 text
+grestore
+grestore
+57300 42100 57300 41700 10 line
+55900 41700 55900 41900 10 line
+gsave
+56200 41900 56400 41900 10 line
+57100 41900 56900 41900 10 line
+56600 42100 56600 41700 10 line
+56700 42100 56700 41700 10 line
+56900 41900 56700 41900 10 line
+56600 41900 56400 41900 10 line
+grestore
+gsave
+false false false false 260.000000 [(C13) ] 0 56400 42200 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 41500 180.555557 text
+grestore
+57300 42100 55600 42100 10 line
+55600 41900 56200 41900 10 line
+57100 41900 57300 41900 10 line
+gsave
+55900 38300 55900 38500 10 line
+55800 38300 56000 38300 10 line
+55855 38250 55945 38250 10 line
+55880 38210 55920 38210 10 line
+grestore
+gsave
+57300 38500 57300 38300 10 line
+57450 38300 57150 38300 10 line
+gsave
+false true false true 208.000000 [(+5V) ] 0 57425 38250 144.444443 text
+grestore
+grestore
+57300 38900 57300 38500 10 line
+55900 38500 55900 38700 10 line
+57300 38900 55600 38900 10 line
+30900 42000 31000 42000 10 line
+30900 38300 31300 38300 10 line
+41800 47100 45900 47100 10 line
+17500 46800 39200 46800 10 line
+18500 47400 18500 55200 10 line
+18900 47100 39200 47100 10 line
+18900 47100 18900 55200 10 line
+18100 47700 39200 47700 10 line
+18100 47700 18100 55200 10 line
+17300 48000 39200 48000 10 line
+17300 48000 17300 57000 10 line
+17500 46800 17500 56800 10 line
+28400 47100 28400 49900 10 line
+34900 46200 39200 46200 10 line
+34900 43900 34900 46200 10 line
+35600 45900 39200 45900 10 line
+35600 43900 35600 45900 10 line
+gsave
+32400 54600 32400 54300 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 32350 55750 144.444443 text
+grestore
+32700 54600 32700 54300 10 line
+gsave
+false false false false 208.000000 [(1) ] 270 32650 55750 144.444443 text
+grestore
+32100 54600 32100 54300 10 line
+gsave
+false false false false 208.000000 [(3) ] 270 32050 55750 144.444443 text
+grestore
+32700 54600 32700 55500 10 line
+32400 54600 32400 55500 10 line
+32100 54600 32100 55500 10 line
+31900 55500 32900 55500 10 line
+32900 55500 32900 56000 10 line
+32900 56000 31900 56000 10 line
+31900 56000 31900 55500 10 line
+grestore
+gsave
+false false false false 260.000000 [(X_MIN) ] 0 32000 56100 180.555557 text
+grestore
+gsave
+33800 54600 33800 54300 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 33750 55750 144.444443 text
+grestore
+34100 54600 34100 54300 10 line
+gsave
+false false false false 208.000000 [(1) ] 270 34050 55750 144.444443 text
+grestore
+33500 54600 33500 54300 10 line
+gsave
+false false false false 208.000000 [(3) ] 270 33450 55750 144.444443 text
+grestore
+34100 54600 34100 55500 10 line
+33800 54600 33800 55500 10 line
+33500 54600 33500 55500 10 line
+33300 55500 34300 55500 10 line
+34300 55500 34300 56000 10 line
+34300 56000 33300 56000 10 line
+33300 56000 33300 55500 10 line
+grestore
+gsave
+false false false false 260.000000 [(Y_MIN) ] 0 33400 56100 180.555557 text
+grestore
+gsave
+35200 54600 35200 54300 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 35150 55750 144.444443 text
+grestore
+35500 54600 35500 54300 10 line
+gsave
+false false false false 208.000000 [(1) ] 270 35450 55750 144.444443 text
+grestore
+34900 54600 34900 54300 10 line
+gsave
+false false false false 208.000000 [(3) ] 270 34850 55750 144.444443 text
+grestore
+35500 54600 35500 55500 10 line
+35200 54600 35200 55500 10 line
+34900 54600 34900 55500 10 line
+34700 55500 35700 55500 10 line
+35700 55500 35700 56000 10 line
+35700 56000 34700 56000 10 line
+34700 56000 34700 55500 10 line
+grestore
+gsave
+false false false false 260.000000 [(Z_MIN) ] 0 34800 56100 180.555557 text
+grestore
+32700 49500 32700 54300 10 line
+34100 49200 34100 54300 10 line
+35500 48900 39200 48900 10 line
+35500 48900 35500 54300 10 line
+43000 54300 43000 49500 10 line
+gsave
+42500 51800 42300 51900 10 line
+42300 51900 42500 52000 10 line
+42500 52000 42300 52100 10 line
+42300 52100 42500 52200 10 line
+42500 51800 42300 51700 10 line
+42300 51700 42400 51650 10 line
+42400 51500 42400 51650 10 line
+42400 52400 42400 52248 10 line
+42500 52199 42400 52250 10 line
+grestore
+gsave
+false false false false 260.000000 [(RT1) ] 270 42600 52300 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(4K7) ] 270 42600 51800 180.555557 text
+grestore
+45000 54300 45000 49200 10 line
+gsave
+43400 51000 43400 51200 10 line
+43300 51000 43500 51000 10 line
+43355 50950 43445 50950 10 line
+43380 50910 43420 50910 10 line
+grestore
+43400 51500 43400 51200 10 line
+gsave
+44500 51800 44300 51900 10 line
+44300 51900 44500 52000 10 line
+44500 52000 44300 52100 10 line
+44300 52100 44500 52200 10 line
+44500 51800 44300 51700 10 line
+44300 51700 44400 51650 10 line
+44400 51500 44400 51650 10 line
+44400 52400 44400 52248 10 line
+44500 52199 44400 52250 10 line
+grestore
+gsave
+false false false false 260.000000 [(RT2) ] 270 44600 52300 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(4K7) ] 270 44600 51800 180.555557 text
+grestore
+gsave
+45400 51000 45400 51200 10 line
+45300 51000 45500 51000 10 line
+45355 50950 45445 50950 10 line
+45380 50910 45420 50910 10 line
+grestore
+45400 51500 45400 51200 10 line
+44400 50300 44400 51500 10 line
+42400 46500 42400 51500 10 line
+gsave
+25300 39300 25500 39300 10 line
+gsave
+false true false false 208.000000 [(1) ] 0 25450 39350 144.444443 text
+grestore
+26200 39300 26000 39300 10 line
+gsave
+false false false false 208.000000 [(2) ] 0 26050 39350 144.444443 text
+grestore
+25700 39400 25800 39300 10 line
+25800 39300 25700 39200 10 line
+25700 39400 25700 39200 10 line
+25800 39400 25800 39200 10 line
+25800 39300 26000 39300 10 line
+25700 39300 25500 39300 10 line
+25750 39300 200 0 360 10 darc
+25816 39603 25917 39704 10 line
+25917 39704 25921 39655 10 line
+25921 39655 26022 39757 10 line
+25784 39518 25885 39618 10 line
+25885 39618 25889 39569 10 line
+25889 39569 25990 39670 10 line
+grestore
+gsave
+false false false false 260.000000 [(LED5) ] 0 26100 39500 180.555557 text
+grestore
+gsave
+24400 39400 24300 39200 10 line
+24300 39200 24200 39400 10 line
+24200 39400 24100 39200 10 line
+24100 39200 24000 39400 10 line
+24400 39400 24500 39200 10 line
+24500 39200 24550 39300 10 line
+24700 39300 24550 39300 10 line
+23800 39300 23952 39300 10 line
+24001 39400 23950 39300 10 line
+grestore
+gsave
+false false false false 260.000000 [(R22) ] 0 24000 39500 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(560R) ] 0 24000 39100 180.555557 text
+grestore
+gsave
+23200 40300 23200 40500 10 line
+23050 40500 23350 40500 10 line
+gsave
+false false false false 208.000000 [(+12V) ] 0 23075 40550 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(Vheat:1) ] 0 23300 40300 144.444443 text
+grestore
+gsave
+29800 37100 29800 37300 10 line
+29700 37100 29900 37100 10 line
+29755 37050 29845 37050 10 line
+29780 37010 29820 37010 10 line
+grestore
+25300 39300 24700 39300 10 line
+23200 39300 23200 40300 10 line
+gsave
+59200 48500 59200 48800 10 line
+gsave
+false true false false 208.000000 [(3) ] 270 59150 47350 144.444443 text
+grestore
+59500 48500 59500 48800 10 line
+gsave
+false true false false 208.000000 [(2) ] 270 59450 47350 144.444443 text
+grestore
+58900 48500 58900 48800 10 line
+gsave
+false true false false 208.000000 [(4) ] 270 58850 47350 144.444443 text
+grestore
+59500 48500 59500 47600 10 line
+59200 48500 59200 47600 10 line
+58900 48500 58900 47600 10 line
+59800 48500 59800 48800 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 59750 47350 144.444443 text
+grestore
+59800 48500 59800 47600 10 line
+58700 47100 60000 47100 10 line
+60000 47100 60000 47600 10 line
+60000 47600 58700 47600 10 line
+58700 47600 58700 47100 10 line
+grestore
+gsave
+false true false false 260.000000 [(E_MOT) ] 0 59700 46900 180.555557 text
+grestore
+55600 49600 58900 49600 10 line
+55600 49000 59800 49000 10 line
+55600 49200 59500 49200 10 line
+55600 49400 59200 49400 10 line
+gsave
+59200 45300 59200 45600 10 line
+gsave
+false true false false 208.000000 [(3) ] 270 59150 44150 144.444443 text
+grestore
+59500 45300 59500 45600 10 line
+gsave
+false true false false 208.000000 [(2) ] 270 59450 44150 144.444443 text
+grestore
+58900 45300 58900 45600 10 line
+gsave
+false true false false 208.000000 [(4) ] 270 58850 44150 144.444443 text
+grestore
+59500 45300 59500 44400 10 line
+59200 45300 59200 44400 10 line
+58900 45300 58900 44400 10 line
+59800 45300 59800 45600 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 59750 44150 144.444443 text
+grestore
+59800 45300 59800 44400 10 line
+58700 43900 60000 43900 10 line
+60000 43900 60000 44400 10 line
+60000 44400 58700 44400 10 line
+58700 44400 58700 43900 10 line
+grestore
+gsave
+false true false false 260.000000 [(Z_MOT) ] 0 59700 43700 180.555557 text
+grestore
+55600 46400 58900 46400 10 line
+55600 46200 59200 46200 10 line
+55600 46000 59500 46000 10 line
+55600 45800 59800 45800 10 line
+gsave
+59200 41800 59200 42100 10 line
+gsave
+false true false false 208.000000 [(3) ] 270 59150 40650 144.444443 text
+grestore
+59500 41800 59500 42100 10 line
+gsave
+false true false false 208.000000 [(2) ] 270 59450 40650 144.444443 text
+grestore
+58900 41800 58900 42100 10 line
+gsave
+false true false false 208.000000 [(4) ] 270 58850 40650 144.444443 text
+grestore
+59500 41800 59500 40900 10 line
+59200 41800 59200 40900 10 line
+58900 41800 58900 40900 10 line
+59800 41800 59800 42100 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 59750 40650 144.444443 text
+grestore
+59800 41800 59800 40900 10 line
+58700 40400 60000 40400 10 line
+60000 40400 60000 40900 10 line
+60000 40900 58700 40900 10 line
+58700 40900 58700 40400 10 line
+grestore
+gsave
+false true false false 260.000000 [(Y_MOT) ] 0 59700 40200 180.555557 text
+grestore
+55600 42900 58900 42900 10 line
+55600 42700 59200 42700 10 line
+55600 42500 59500 42500 10 line
+55600 42300 59800 42300 10 line
+gsave
+59200 38600 59200 38900 10 line
+gsave
+false true false false 208.000000 [(3) ] 270 59150 37450 144.444443 text
+grestore
+59500 38600 59500 38900 10 line
+gsave
+false true false false 208.000000 [(2) ] 270 59450 37450 144.444443 text
+grestore
+58900 38600 58900 38900 10 line
+gsave
+false true false false 208.000000 [(4) ] 270 58850 37450 144.444443 text
+grestore
+59500 38600 59500 37700 10 line
+59200 38600 59200 37700 10 line
+58900 38600 58900 37700 10 line
+59800 38600 59800 38900 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 59750 37450 144.444443 text
+grestore
+59800 38600 59800 37700 10 line
+58700 37200 60000 37200 10 line
+60000 37200 60000 37700 10 line
+60000 37700 58700 37700 10 line
+58700 37700 58700 37200 10 line
+grestore
+gsave
+false true false false 260.000000 [(X_MOT) ] 0 59700 37000 180.555557 text
+grestore
+55600 39700 58900 39700 10 line
+55600 39500 59200 39500 10 line
+55600 39300 59500 39300 10 line
+55600 39100 59800 39100 10 line
+51600 49800 53800 49800 10 line
+gsave
+52000 49600 52200 49600 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 49650 144.444443 text
+grestore
+53000 49600 52800 49600 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 49650 144.444443 text
+grestore
+52300 49600 50 0 360 10 darc
+52700 49600 50 0 360 10 darc
+52200 49500 52800 49500 10 line
+52800 49500 52800 49700 10 line
+52800 49700 52200 49700 10 line
+52200 49700 52200 49500 10 line
+grestore
+gsave
+false false false false 260.000000 [(J2) ] 90 52500 49800 180.555557 text
+grestore
+gsave
+52000 49400 52200 49400 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 49450 144.444443 text
+grestore
+53000 49400 52800 49400 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 49450 144.444443 text
+grestore
+52300 49400 50 0 360 10 darc
+52700 49400 50 0 360 10 darc
+52200 49300 52800 49300 10 line
+52800 49300 52800 49500 10 line
+52800 49500 52200 49500 10 line
+52200 49500 52200 49300 10 line
+grestore
+gsave
+false false false false 260.000000 [(J3) ] 90 52500 49600 180.555557 text
+grestore
+53000 49600 53800 49600 10 line
+53000 49400 53800 49400 10 line
+51800 49400 52000 49400 10 line
+51800 49600 52000 49600 10 line
+gsave
+52000 46400 52200 46400 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 46450 144.444443 text
+grestore
+53000 46400 52800 46400 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 46450 144.444443 text
+grestore
+52300 46400 50 0 360 10 darc
+52700 46400 50 0 360 10 darc
+52200 46300 52800 46300 10 line
+52800 46300 52800 46500 10 line
+52800 46500 52200 46500 10 line
+52200 46500 52200 46300 10 line
+grestore
+gsave
+false false false false 260.000000 [(J5) ] 90 52500 46600 180.555557 text
+grestore
+gsave
+52000 46200 52200 46200 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 46250 144.444443 text
+grestore
+53000 46200 52800 46200 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 46250 144.444443 text
+grestore
+52300 46200 50 0 360 10 darc
+52700 46200 50 0 360 10 darc
+52200 46100 52800 46100 10 line
+52800 46100 52800 46300 10 line
+52800 46300 52200 46300 10 line
+52200 46300 52200 46100 10 line
+grestore
+gsave
+false false false false 260.000000 [(J6) ] 90 52500 46400 180.555557 text
+grestore
+gsave
+52000 42900 52200 42900 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 42950 144.444443 text
+grestore
+53000 42900 52800 42900 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 42950 144.444443 text
+grestore
+52300 42900 50 0 360 10 darc
+52700 42900 50 0 360 10 darc
+52200 42800 52800 42800 10 line
+52800 42800 52800 43000 10 line
+52800 43000 52200 43000 10 line
+52200 43000 52200 42800 10 line
+grestore
+gsave
+false false false false 260.000000 [(J8) ] 90 52500 43100 180.555557 text
+grestore
+gsave
+52000 42700 52200 42700 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 42750 144.444443 text
+grestore
+53000 42700 52800 42700 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 42750 144.444443 text
+grestore
+52300 42700 50 0 360 10 darc
+52700 42700 50 0 360 10 darc
+52200 42600 52800 42600 10 line
+52800 42600 52800 42800 10 line
+52800 42800 52200 42800 10 line
+52200 42800 52200 42600 10 line
+grestore
+gsave
+false false false false 260.000000 [(J9) ] 90 52500 42900 180.555557 text
+grestore
+gsave
+52000 39700 52200 39700 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 39750 144.444443 text
+grestore
+53000 39700 52800 39700 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 39750 144.444443 text
+grestore
+52300 39700 50 0 360 10 darc
+52700 39700 50 0 360 10 darc
+52200 39600 52800 39600 10 line
+52800 39600 52800 39800 10 line
+52800 39800 52200 39800 10 line
+52200 39800 52200 39600 10 line
+grestore
+gsave
+false false false false 260.000000 [(J11) ] 90 52500 39900 180.555557 text
+grestore
+gsave
+52000 39500 52200 39500 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 39550 144.444443 text
+grestore
+53000 39500 52800 39500 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 39550 144.444443 text
+grestore
+52300 39500 50 0 360 10 darc
+52700 39500 50 0 360 10 darc
+52200 39400 52800 39400 10 line
+52800 39400 52800 39600 10 line
+52800 39600 52200 39600 10 line
+52200 39600 52200 39400 10 line
+grestore
+gsave
+false false false false 260.000000 [(J12) ] 90 52500 39700 180.555557 text
+grestore
+51600 39900 53800 39900 10 line
+53000 39700 53800 39700 10 line
+53000 39500 53800 39500 10 line
+51800 39500 52000 39500 10 line
+51800 39700 52000 39700 10 line
+53000 42700 53800 42700 10 line
+51800 42700 52000 42700 10 line
+51800 42900 52000 42900 10 line
+51600 43100 53800 43100 10 line
+53000 42900 53800 42900 10 line
+53000 46400 53800 46400 10 line
+53000 46200 53800 46200 10 line
+51600 46600 53800 46600 10 line
+55600 50000 56200 50000 10 line
+55600 46800 56200 46800 10 line
+57100 46800 57300 46800 10 line
+55600 38700 56200 38700 10 line
+42400 52400 42400 52800 10 line
+43000 52800 43400 52800 10 line
+43400 52800 43400 52400 10 line
+45400 52400 45400 52800 10 line
+45400 52800 45000 52800 10 line
+44400 52800 44400 52400 10 line
+26200 43000 29800 43000 10 line
+26200 39300 29800 39300 10 line
+gsave
+29300 41700 29600 41700 10 line
+gsave
+false false false false 208.000000 [(2) ] 0 28150 41650 144.444443 text
+grestore
+29300 42000 29600 42000 10 line
+gsave
+false false false false 208.000000 [(1) ] 0 28150 41950 144.444443 text
+grestore
+29300 41400 29600 41400 10 line
+gsave
+false false false false 208.000000 [(3) ] 0 28150 41350 144.444443 text
+grestore
+29300 42000 28400 42000 10 line
+29300 41700 28400 41700 10 line
+29300 41400 28400 41400 10 line
+27900 41200 28400 41200 10 line
+28400 41200 28400 42200 10 line
+28400 42200 27900 42200 10 line
+27900 42200 27900 41200 10 line
+grestore
+gsave
+false false false false 260.000000 [(Q2) ] 0 27900 42300 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(IRLB 8743) ] 0 27900 41000 180.555557 text
+grestore
+30000 42000 29600 42000 10 line
+29800 43000 29800 41700 10 line
+29800 41700 29600 41700 10 line
+gsave
+29300 38000 29600 38000 10 line
+gsave
+false false false false 208.000000 [(2) ] 0 28150 37950 144.444443 text
+grestore
+29300 38300 29600 38300 10 line
+gsave
+false false false false 208.000000 [(1) ] 0 28150 38250 144.444443 text
+grestore
+29300 37700 29600 37700 10 line
+gsave
+false false false false 208.000000 [(3) ] 0 28150 37650 144.444443 text
+grestore
+29300 38300 28400 38300 10 line
+29300 38000 28400 38000 10 line
+29300 37700 28400 37700 10 line
+27900 37500 28400 37500 10 line
+28400 37500 28400 38500 10 line
+28400 38500 27900 38500 10 line
+27900 38500 27900 37500 10 line
+grestore
+gsave
+false false false false 260.000000 [(Q1) ] 0 27900 38600 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(IRLB 8743) ] 0 27900 37300 180.555557 text
+grestore
+30000 38300 29600 38300 10 line
+29600 38000 29800 38000 10 line
+29800 38000 29800 39300 10 line
+gsave
+44100 30600 44100 30400 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 44150 30450 144.444443 text
+grestore
+44100 29700 44100 29900 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 44150 29850 144.444443 text
+grestore
+44300 30200 43900 30200 10 line
+44100 29900 44100 30100 10 line
+44100 30200 44100 30400 10 line
+44100 29400 700 75 105 10 darc
+44300 30311 44200 30311 10 line
+44249 30260 44249 30360 10 line
+grestore
+gsave
+false false false false 260.000000 [(C1) ] 270 44400 30400 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(100 uF) ] 270 43700 30400 180.555557 text
+grestore
+gsave
+39300 31400 39300 31200 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 39350 31250 144.444443 text
+grestore
+39300 30500 39300 30700 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 39350 30650 144.444443 text
+grestore
+39500 31000 39100 31000 10 line
+39300 30700 39300 30900 10 line
+39300 31000 39300 31200 10 line
+39300 30200 700 75 105 10 darc
+39500 31111 39400 31111 10 line
+39449 31060 39449 31160 10 line
+grestore
+gsave
+false false false false 260.000000 [(C2) ] 270 39600 31200 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(100 uF) ] 270 38900 31200 180.555557 text
+grestore
+gsave
+33600 31400 33600 31200 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 33650 31250 144.444443 text
+grestore
+33600 30500 33600 30700 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 33650 30650 144.444443 text
+grestore
+33800 31000 33400 31000 10 line
+33600 30700 33600 30900 10 line
+33600 31000 33600 31200 10 line
+33600 30200 700 75 105 10 darc
+33800 31111 33700 31111 10 line
+33749 31060 33749 31160 10 line
+grestore
+gsave
+false false false false 260.000000 [(C6) ] 270 33900 31200 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(100 uF) ] 270 33200 31200 180.555557 text
+grestore
+gsave
+43400 52400 43400 52200 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 43450 52250 144.444443 text
+grestore
+43400 51500 43400 51700 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 43450 51650 144.444443 text
+grestore
+43600 52000 43200 52000 10 line
+43400 51700 43400 51900 10 line
+43400 52000 43400 52200 10 line
+43400 51200 700 75 105 10 darc
+43600 52111 43500 52111 10 line
+43549 52060 43549 52160 10 line
+grestore
+gsave
+false false false false 260.000000 [(CT1) ] 270 43700 52200 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(10 uF) ] 270 43200 51800 180.555557 text
+grestore
+gsave
+45400 52400 45400 52200 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 45450 52250 144.444443 text
+grestore
+45400 51500 45400 51700 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 45450 51650 144.444443 text
+grestore
+45600 52000 45200 52000 10 line
+45400 51700 45400 51900 10 line
+45400 52000 45400 52200 10 line
+45400 51200 700 75 105 10 darc
+45600 52111 45500 52111 10 line
+45549 52060 45549 52160 10 line
+grestore
+gsave
+false false false false 260.000000 [(CT2) ] 270 45700 52200 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(10 uF) ] 270 45200 51800 180.555557 text
+grestore
+39700 27400 39700 27700 10 line
+22700 39000 27600 39000 10 line
+22700 42700 27600 42700 10 line
+gsave
+32400 53800 32400 54000 10 line
+32300 53800 32500 53800 10 line
+32355 53750 32445 53750 10 line
+32380 53710 32420 53710 10 line
+grestore
+32400 54300 32400 54000 10 line
+gsave
+32100 54000 32100 53800 10 line
+32250 53800 31950 53800 10 line
+gsave
+false true false true 208.000000 [(+5V) ] 0 32225 53750 144.444443 text
+grestore
+grestore
+32100 54300 32100 54000 10 line
+gsave
+33800 53800 33800 54000 10 line
+33700 53800 33900 53800 10 line
+33755 53750 33845 53750 10 line
+33780 53710 33820 53710 10 line
+grestore
+33800 54300 33800 54000 10 line
+gsave
+33500 54000 33500 53800 10 line
+33650 53800 33350 53800 10 line
+gsave
+false true false true 208.000000 [(+5V) ] 0 33625 53750 144.444443 text
+grestore
+grestore
+33500 54300 33500 54000 10 line
+gsave
+35200 53800 35200 54000 10 line
+35100 53800 35300 53800 10 line
+35155 53750 35245 53750 10 line
+35180 53710 35220 53710 10 line
+grestore
+35200 54300 35200 54000 10 line
+gsave
+34900 54000 34900 53800 10 line
+35050 53800 34750 53800 10 line
+gsave
+false true false true 208.000000 [(+5V) ] 0 35025 53750 144.444443 text
+grestore
+grestore
+34900 54300 34900 54000 10 line
+gsave
+44700 53800 44700 54000 10 line
+44600 53800 44800 53800 10 line
+44655 53750 44745 53750 10 line
+44680 53710 44720 53710 10 line
+grestore
+44700 54300 44700 54000 10 line
+gsave
+42700 53800 42700 54000 10 line
+42600 53800 42800 53800 10 line
+42655 53750 42745 53750 10 line
+42680 53710 42720 53710 10 line
+grestore
+42700 54300 42700 54000 10 line
+gsave
+32800 42200 32800 42350 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 32750 42250 144.444443 text
+grestore
+32800 43050 32800 43200 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 32750 43100 144.444443 text
+grestore
+32800 42350 32800 42525 10 line
+32800 43050 32800 42875 10 line
+32715 42500 32715 42900 10 line
+32800 42539 14 0 360 10 darc
+32800 42862 14 0 360 10 darc
+32545 42670 32545 42720 10 line
+32595 42670 32595 42720 10 line
+32595 42670 32645 42695 10 line
+32595 42720 32645 42695 10 line
+32595 42695 32545 42695 10 line
+32645 42695 32714 42695 10 line
+grestore
+gsave
+false false false false 260.000000 [(RESET) ] 90 32500 42600 180.555557 text
+grestore
+gsave
+33300 44300 33500 44200 10 line
+33500 44200 33300 44100 10 line
+33300 44100 33500 44000 10 line
+33500 44000 33300 43900 10 line
+33300 44300 33500 44400 10 line
+33500 44400 33400 44450 10 line
+33400 44600 33400 44450 10 line
+33400 43700 33400 43852 10 line
+33300 43901 33400 43850 10 line
+grestore
+gsave
+false false false false 260.000000 [(R30) ] 90 33200 43900 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(10K) ] 90 33700 43900 180.555557 text
+grestore
+gsave
+32800 41800 32800 42000 10 line
+32700 41800 32900 41800 10 line
+32755 41750 32845 41750 10 line
+32780 41710 32820 41710 10 line
+grestore
+32800 43200 32800 47100 10 line
+33400 46800 33400 44600 10 line
+33400 43400 32800 43400 10 line
+32800 42000 32800 42200 10 line
+24500 40100 23200 40100 10 line
+25400 40100 27600 40100 10 line
+27600 40100 27600 39300 10 line
+24500 43800 23200 43800 10 line
+25400 43800 27600 43800 10 line
+27600 43800 27600 43000 10 line
+27600 39000 27600 39300 10 line
+29800 37700 29800 37300 10 line
+27600 42700 27600 43000 10 line
+29800 41000 29800 41400 10 line
+gsave
+44500 31300 44500 31500 10 line
+44350 31500 44650 31500 10 line
+gsave
+false false false false 208.000000 [(+12V) ] 0 44375 31550 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(Vmot:1) ] 0 44600 31300 144.444443 text
+grestore
+gsave
+43700 31500 43700 31300 10 line
+43800 31500 43600 31500 10 line
+43745 31550 43655 31550 10 line
+43720 31590 43680 31590 10 line
+grestore
+43700 29100 43700 31300 10 line
+31300 48300 39200 48300 10 line
+31000 48600 39200 48600 10 line
+41800 48600 48800 48600 10 line
+41800 48300 49500 48300 10 line
+49300 48000 41800 48000 10 line
+42300 29500 42300 43800 10 line
+18500 47400 39200 47400 10 line
+gsave
+41300 29100 41300 28800 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 41350 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(3.3V) ] 270 41300 28775 144.444443 text
+grestore
+40900 29100 40900 28800 10 line
+gsave
+false false false false 208.000000 [(3) ] 270 40950 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(GND) ] 270 40900 28775 144.444443 text
+grestore
+40500 29100 40500 28800 10 line
+gsave
+false false false false 208.000000 [(4) ] 270 40550 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(+5V) ] 270 40500 28775 144.444443 text
+grestore
+41700 29100 41700 28800 10 line
+gsave
+false false false false 208.000000 [(1) ] 270 41750 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(3.3V) ] 270 41700 28775 144.444443 text
+grestore
+40100 29100 40100 28800 10 line
+gsave
+false false false false 208.000000 [(5) ] 270 40150 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(GND) ] 270 40100 28775 144.444443 text
+grestore
+41100 28800 41100 28000 10 line
+40700 28800 40700 28000 10 line
+41500 28800 41500 28000 10 line
+40300 28800 40300 28000 10 line
+38100 29100 38100 28800 10 line
+gsave
+false false true false 208.000000 [(+12V) ] 270 38100 28775 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(10) ] 270 38150 29000 144.444443 text
+grestore
+38500 29100 38500 28800 10 line
+gsave
+false false false false 208.000000 [(9) ] 270 38550 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(5VSB) ] 270 38500 28775 144.444443 text
+grestore
+38900 29100 38900 28800 10 line
+gsave
+false false false false 208.000000 [(8) ] 270 38950 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(PWR) (_OK) ] 270 38900 28775 144.444443 text
+grestore
+39300 29100 39300 28800 10 line
+gsave
+false false false false 208.000000 [(7) ] 270 39350 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(GND) ] 270 39300 28775 144.444443 text
+grestore
+39700 29100 39700 28800 10 line
+gsave
+false false false false 208.000000 [(6) ] 270 39750 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(+5V) ] 270 39700 28775 144.444443 text
+grestore
+40900 28000 40900 27700 10 line
+gsave
+false false false false 208.000000 [(13) ] 270 40950 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(GND) ] 270 40900 28025 144.444443 text
+grestore
+41700 28000 41700 27700 10 line
+gsave
+false false false false 208.000000 [(11) ] 270 41750 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(3.3V) ] 270 41700 28025 144.444443 text
+grestore
+40500 28000 40500 27700 10 line
+gsave
+false false false false 208.000000 [(14) ] 270 40550 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(/PS) (_ON) ] 270 40500 28025 144.444443 text
+grestore
+41300 28000 41300 27700 10 line
+gsave
+false false false false 208.000000 [(12) ] 270 41350 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(-12V) ] 270 41300 28025 144.444443 text
+grestore
+40100 28000 40100 27700 10 line
+gsave
+false false false false 208.000000 [(15) ] 270 40150 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(GND) ] 270 40100 28025 144.444443 text
+grestore
+39100 28800 39100 28000 10 line
+38700 28800 38700 28000 10 line
+39500 28800 39500 28000 10 line
+38300 28800 38300 28000 10 line
+39700 28000 39700 27700 10 line
+gsave
+false false false false 208.000000 [(16) ] 270 39750 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(GND) ] 270 39700 28025 144.444443 text
+grestore
+39300 28000 39300 27700 10 line
+gsave
+false false false false 208.000000 [(17) ] 270 39350 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(GND) ] 270 39300 28025 144.444443 text
+grestore
+38900 28000 38900 27700 10 line
+gsave
+false false false false 208.000000 [(18) ] 270 38950 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(-5V) ] 270 38900 28025 144.444443 text
+grestore
+38500 28000 38500 27700 10 line
+gsave
+false false false false 208.000000 [(19) ] 270 38550 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(+5V) ] 270 38500 28025 144.444443 text
+grestore
+38100 28000 38100 27700 10 line
+gsave
+false false false false 208.000000 [(20) ] 270 38150 27950 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(+5V) ] 270 38100 28025 144.444443 text
+grestore
+37900 28000 41900 28000 10 line
+41900 28000 41900 28800 10 line
+41900 28800 37900 28800 10 line
+37900 28800 37900 28000 10 line
+39900 28800 39900 28000 10 line
+41900 28400 37900 28400 10 line
+grestore
+gsave
+false true false false 260.000000 [(CONN1) ] 270 42000 28100 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(ATX20) ] 270 37700 28700 180.555557 text
+grestore
+36900 27400 39700 27400 10 line
+36900 27400 36900 29500 10 line
+38500 27700 38500 27000 10 line
+38100 27700 38100 27000 10 line
+34000 27000 38500 27000 10 line
+40500 27200 42500 27200 10 line
+40500 27200 40500 27700 10 line
+40100 29100 40100 29500 10 line
+40100 30500 40100 29500 10 line
+43700 40600 43700 45900 10 line
+43700 45900 41800 45900 10 line
+43900 41000 43900 46200 10 line
+43900 46200 41800 46200 10 line
+gsave
+18500 55200 18500 55500 10 line
+gsave
+false false false false 208.000000 [(3) ] 90 18450 55300 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(SCK) ] 90 18500 55525 144.444443 text
+grestore
+18900 55200 18900 55500 10 line
+gsave
+false false false false 208.000000 [(5) ] 90 18850 55300 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(Reset) ] 90 18900 55525 144.444443 text
+grestore
+18100 55200 18100 55500 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 18050 55300 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(MISO) ] 90 18100 55525 144.444443 text
+grestore
+18700 55500 18700 56300 10 line
+18300 55500 18300 56300 10 line
+18900 56300 18900 56600 10 line
+gsave
+false false false false 208.000000 [(6) ] 90 18850 56350 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(GND) ] 90 18900 56275 144.444443 text
+grestore
+18100 56300 18100 56600 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 18050 56350 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(Vcc) ] 90 18100 56275 144.444443 text
+grestore
+18500 56300 18500 56600 10 line
+gsave
+false false false false 208.000000 [(4) ] 90 18450 56350 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(MOSI) ] 90 18500 56275 144.444443 text
+grestore
+17900 55500 19100 55500 10 line
+19100 55500 19100 56300 10 line
+19100 56300 17900 56300 10 line
+17900 56300 17900 55500 10 line
+17900 55900 19100 55900 10 line
+grestore
+gsave
+true false false false 260.000000 [(CONN6) ] 90 17850 55900 180.555557 text
+grestore
+gsave
+true false false true 260.000000 [(ICSP) ] 90 19150 55900 180.555557 text
+grestore
+17500 56800 18100 56800 10 line
+18100 56800 18100 56600 10 line
+17300 57000 18500 57000 10 line
+18500 57000 18500 56600 10 line
+33400 43700 33400 43400 10 line
+41800 49500 43000 49500 10 line
+45000 49200 41800 49200 10 line
+53800 49200 53600 49200 10 line
+53600 49200 53600 49000 10 line
+53600 46000 53600 45800 10 line
+53600 42500 53600 42300 10 line
+53600 39300 53600 39100 10 line
+gsave
+25100 43600 25100 44000 10 line
+25100 43600 24800 43800 10 line
+24800 43800 25100 44000 10 line
+24800 43600 24800 44000 10 line
+25400 43800 25200 43800 10 line
+24500 43800 24700 43800 10 line
+24700 43800 24800 43800 10 line
+25100 43800 25200 43800 10 line
+grestore
+gsave
+false false false false 260.000000 [(D2) ] 0 24850 44050 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1N4004) ] 0 24600 43500 180.555557 text
+grestore
+gsave
+25100 39900 25100 40300 10 line
+25100 39900 24800 40100 10 line
+24800 40100 25100 40300 10 line
+24800 39900 24800 40300 10 line
+25400 40100 25200 40100 10 line
+24500 40100 24700 40100 10 line
+24700 40100 24800 40100 10 line
+25100 40100 25200 40100 10 line
+grestore
+gsave
+false false false false 260.000000 [(D1) ] 0 24850 40350 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1N4004) ] 0 24600 39800 180.555557 text
+grestore
+43700 29500 44100 29500 10 line
+gsave
+44100 29100 44100 28800 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 44150 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(GND) ] 270 44100 28775 144.444443 text
+grestore
+43700 29100 43700 28800 10 line
+gsave
+false false false false 208.000000 [(3) ] 270 43750 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(GND) ] 270 43700 28775 144.444443 text
+grestore
+43300 29100 43300 28800 10 line
+gsave
+false false false false 208.000000 [(4) ] 270 43350 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(+5V) ] 270 43300 28775 144.444443 text
+grestore
+44500 29100 44500 28800 10 line
+gsave
+false false false false 208.000000 [(1) ] 270 44550 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(+12V) ] 270 44500 28775 144.444443 text
+grestore
+43900 28800 43900 28400 10 line
+43500 28800 43500 28400 10 line
+44300 28800 44300 28400 10 line
+43100 28400 44700 28400 10 line
+44700 28400 44700 28800 10 line
+44700 28800 43100 28800 10 line
+43100 28800 43100 28400 10 line
+grestore
+gsave
+false true false false 260.000000 [(CONN2) ] 270 44800 28300 180.555557 text
+grestore
+gsave
+true false false true 260.000000 [(Molex 4 Pin) ] 0 43900 28300 180.555557 text
+grestore
+44100 29100 44100 29700 10 line
+44100 30600 44100 30800 10 line
+44100 30800 44500 30800 10 line
+gsave
+34200 45900 34200 46100 10 line
+34200 46800 34200 46600 10 line
+34000 46300 34400 46300 10 line
+34000 46400 34400 46400 10 line
+34200 46600 34200 46400 10 line
+34200 46300 34200 46100 10 line
+newpath
+34200 46800
+25
+0 360 arc
+fill
+newpath
+34200 46800
+25
+0 360 arc
+fill
+grestore
+gsave
+false false false false 260.000000 [(C14) ] 90 33900 46100 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 90 34600 46100 180.555557 text
+grestore
+gsave
+34200 45700 34200 45900 10 line
+34100 45700 34300 45700 10 line
+34155 45650 34245 45650 10 line
+34180 45610 34220 45610 10 line
+grestore
+gsave
+43300 32300 43300 32500 10 line
+43150 32500 43450 32500 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 43175 32550 144.444443 text
+grestore
+grestore
+43300 32300 43300 29100 10 line
+gsave
+40900 31700 41100 31700 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 41050 31750 144.444443 text
+grestore
+41900 31700 41700 31700 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 41850 31750 144.444443 text
+grestore
+41200 31700 50 0 360 10 darc
+41600 31700 50 0 360 10 darc
+41100 31600 41700 31600 10 line
+41700 31600 41700 31800 10 line
+41700 31800 41100 31800 10 line
+41100 31800 41100 31600 10 line
+grestore
+gsave
+false true false true 260.000000 [(J13) ] 0 41500 32000 180.555557 text
+grestore
+41900 31700 43300 31700 10 line
+57100 38700 57300 38700 10 line
+57100 50000 57300 50000 10 line
+gsave
+56200 50000 56400 50000 10 line
+57100 50000 56900 50000 10 line
+56600 50200 56600 49800 10 line
+56700 50200 56700 49800 10 line
+56900 50000 56700 50000 10 line
+56600 50000 56400 50000 10 line
+grestore
+gsave
+false false false false 260.000000 [(C16) ] 0 56400 50300 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 49600 180.555557 text
+grestore
+gsave
+56200 38700 56400 38700 10 line
+57100 38700 56900 38700 10 line
+56600 38900 56600 38500 10 line
+56700 38900 56700 38500 10 line
+56900 38700 56700 38700 10 line
+56600 38700 56400 38700 10 line
+grestore
+gsave
+false false false false 260.000000 [(C17) ] 0 56400 39000 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 38300 180.555557 text
+grestore
+22700 43000 23800 43000 10 line
+22700 39300 23800 39300 10 line
+gsave
+45900 47100 46100 47100 10 line
+46800 47100 46600 47100 10 line
+46300 47300 46300 46900 10 line
+46400 47300 46400 46900 10 line
+46600 47100 46400 47100 10 line
+46300 47100 46100 47100 10 line
+grestore
+gsave
+false false false false 260.000000 [(C18) ] 0 46100 47400 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 46100 46700 180.555557 text
+grestore
+gsave
+47000 46700 47000 46900 10 line
+46900 46700 47100 46700 10 line
+46955 46650 47045 46650 10 line
+46980 46610 47020 46610 10 line
+grestore
+gsave
+40100 51400 39900 51400 10 line
+40700 51400 40900 51400 10 line
+40200 51400 100 0 180 10 darc
+40400 51400 100 0 180 10 darc
+40600 51400 100 0 180 10 darc
+grestore
+gsave
+false false false false 260.000000 [(L1) ] 0 40100 51600 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(10 uH) ] 0 40100 51100 180.555557 text
+grestore
+gsave
+41300 51200 41300 51000 10 line
+41300 50300 41300 50500 10 line
+41500 50800 41100 50800 10 line
+41500 50700 41100 50700 10 line
+41300 50500 41300 50700 10 line
+41300 50800 41300 51000 10 line
+grestore
+gsave
+false false false false 260.000000 [(C19) ] 270 41600 51000 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 270 40900 51000 180.555557 text
+grestore
+gsave
+41300 50000 41300 50200 10 line
+41200 50000 41400 50000 10 line
+41255 49950 41345 49950 10 line
+41280 49910 41320 49910 10 line
+grestore
+40900 51400 42000 51400 10 line
+41300 50300 41300 50200 10 line
+gsave
+false false false false 260.000000 [(RT1 and RT2 should match the) (Thermistor's resitance in it's operating) (point for maximum resolution.) ] 0 46000 52000 180.555557 text
+grestore
+38200 45000 39200 45000 10 line
+38400 44700 39200 44700 10 line
+38600 44400 39200 44400 10 line
+38800 44100 39200 44100 10 line
+39000 43800 39200 43800 10 line
+53800 50000 53200 50000 10 line
+53200 36000 53200 50000 10 line
+53200 40100 53800 40100 10 line
+53800 43300 53200 43300 10 line
+53800 46800 53200 46800 10 line
+41800 47700 53200 47700 10 line
+gsave
+38500 29900 38500 30100 10 line
+gsave
+false true false true 208.000000 [(2) ] 0 38450 30050 144.444443 text
+grestore
+38500 30900 38500 30700 10 line
+gsave
+false true false true 208.000000 [(1) ] 0 38450 30850 144.444443 text
+grestore
+38500 30200 50 0 360 10 darc
+38500 30600 50 0 360 10 darc
+38400 30100 38600 30100 10 line
+38600 30100 38600 30700 10 line
+38600 30700 38400 30700 10 line
+38400 30700 38400 30100 10 line
+grestore
+gsave
+false false false false 260.000000 [(J14) ] 90 38300 30200 180.555557 text
+grestore
+38500 29100 38500 29900 10 line
+29800 41400 29600 41400 10 line
+29800 37700 29600 37700 10 line
+gsave
+22400 42700 22700 42700 10 line
+gsave
+false false false false 208.000000 [(2) ] 0 21350 42650 144.444443 text
+grestore
+22400 43000 22700 43000 10 line
+gsave
+false false false false 208.000000 [(1) ] 0 21350 42950 144.444443 text
+grestore
+22400 43000 21500 43000 10 line
+22400 42700 21500 42700 10 line
+21000 42500 21500 42500 10 line
+21500 42500 21500 43200 10 line
+21500 43200 21000 43200 10 line
+21000 43200 21000 42500 10 line
+grestore
+gsave
+false false false false 260.000000 [(HEATER_BED) ] 0 21000 43300 180.555557 text
+grestore
+gsave
+22400 39000 22700 39000 10 line
+gsave
+false false false false 208.000000 [(2) ] 0 21350 38950 144.444443 text
+grestore
+22400 39300 22700 39300 10 line
+gsave
+false false false false 208.000000 [(1) ] 0 21350 39250 144.444443 text
+grestore
+22400 39300 21500 39300 10 line
+22400 39000 21500 39000 10 line
+21000 38800 21500 38800 10 line
+21500 38800 21500 39500 10 line
+21500 39500 21000 39500 10 line
+21000 39500 21000 38800 10 line
+grestore
+gsave
+false false false false 260.000000 [(HEATER_EXT) ] 0 21000 39600 180.555557 text
+grestore
+gsave
+42700 54600 42700 54300 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 42650 55650 144.444443 text
+grestore
+43000 54600 43000 54300 10 line
+gsave
+false false false false 208.000000 [(1) ] 270 42950 55650 144.444443 text
+grestore
+43000 54600 43000 55500 10 line
+42700 54600 42700 55500 10 line
+42500 55500 43200 55500 10 line
+43200 55500 43200 56000 10 line
+43200 56000 42500 56000 10 line
+42500 56000 42500 55500 10 line
+grestore
+gsave
+false false false false 260.000000 [(TEMP_BED) ] 0 42500 56100 180.555557 text
+grestore
+gsave
+44700 54600 44700 54300 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 44650 55650 144.444443 text
+grestore
+45000 54600 45000 54300 10 line
+gsave
+false false false false 208.000000 [(1) ] 270 44950 55650 144.444443 text
+grestore
+45000 54600 45000 55500 10 line
+44700 54600 44700 55500 10 line
+44500 55500 45200 55500 10 line
+45200 55500 45200 56000 10 line
+45200 56000 44500 56000 10 line
+44500 56000 44500 55500 10 line
+grestore
+gsave
+false false false false 260.000000 [(TEMP_EXT) ] 0 44500 56100 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(Uses an 24 pin footprint for) (compatibility with ATX24 PSUs) ] 0 39000 26600 180.555557 text
+grestore
+47000 29100 47000 31300 10 line
+gsave
+46600 30600 46600 30400 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 46650 30450 144.444443 text
+grestore
+46600 29700 46600 29900 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 46650 29850 144.444443 text
+grestore
+46800 30200 46400 30200 10 line
+46600 29900 46600 30100 10 line
+46600 30200 46600 30400 10 line
+46600 29400 700 75 105 10 darc
+46800 30311 46700 30311 10 line
+46749 30260 46749 30360 10 line
+grestore
+gsave
+false false false false 260.000000 [(C7) ] 270 46900 30400 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(100 uF) ] 270 46200 30400 180.555557 text
+grestore
+gsave
+47000 31300 47000 31500 10 line
+46850 31500 47150 31500 10 line
+gsave
+false false false false 208.000000 [(+12V) ] 0 46875 31550 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(Vheat:1) ] 0 47100 31300 144.444443 text
+grestore
+gsave
+46200 31500 46200 31300 10 line
+46300 31500 46100 31500 10 line
+46245 31550 46155 31550 10 line
+46220 31590 46180 31590 10 line
+grestore
+46200 29100 46200 31300 10 line
+46200 29500 46600 29500 10 line
+gsave
+46600 29100 46600 28800 10 line
+gsave
+false false false false 208.000000 [(2) ] 270 46650 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(GND) ] 270 46600 28775 144.444443 text
+grestore
+46200 29100 46200 28800 10 line
+gsave
+false false false false 208.000000 [(3) ] 270 46250 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(GND) ] 270 46200 28775 144.444443 text
+grestore
+45800 29100 45800 28800 10 line
+gsave
+false false false false 208.000000 [(4) ] 270 45850 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(+5V) ] 270 45800 28775 144.444443 text
+grestore
+47000 29100 47000 28800 10 line
+gsave
+false false false false 208.000000 [(1) ] 270 47050 29000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(+12V) ] 270 47000 28775 144.444443 text
+grestore
+46400 28800 46400 28400 10 line
+46000 28800 46000 28400 10 line
+46800 28800 46800 28400 10 line
+45600 28400 47200 28400 10 line
+47200 28400 47200 28800 10 line
+47200 28800 45600 28800 10 line
+45600 28800 45600 28400 10 line
+grestore
+gsave
+false true false false 260.000000 [(CONN3) ] 270 47300 28300 180.555557 text
+grestore
+gsave
+true false false true 260.000000 [(Molex 4 Pin) ] 0 46400 28300 180.555557 text
+grestore
+46600 29100 46600 29700 10 line
+46600 30600 46600 30800 10 line
+46600 30800 47000 30800 10 line
+gsave
+false false true false 312.000000 [(Creative Commons BY-NC-SA 3.0 Licence) () (http://reprap.org/wiki/Generation_7_Electronics) ] 0 17600 28000 216.666672 text
+grestore
+39200 49200 34100 49200 10 line
+39200 49500 32700 49500 10 line
+58900 49600 58900 48800 10 line
+59200 49400 59200 48800 10 line
+59500 49200 59500 48800 10 line
+59800 49000 59800 48800 10 line
+58900 46400 58900 45600 10 line
+59200 46200 59200 45600 10 line
+59500 46000 59500 45600 10 line
+59800 45800 59800 45600 10 line
+58900 42900 58900 42100 10 line
+59200 42700 59200 42100 10 line
+59500 42500 59500 42100 10 line
+59800 42300 59800 42100 10 line
+59800 39100 59800 38900 10 line
+59500 39300 59500 38900 10 line
+59200 39500 59200 38900 10 line
+58900 39700 58900 38900 10 line
+gsave
+38500 33500 38500 33700 10 line
+38350 33700 38650 33700 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 38375 33750 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(+5VSB:1) ] 0 38600 33500 144.444443 text
+grestore
+gsave
+36600 50000 36600 50200 10 line
+36450 50200 36750 50200 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 36475 50250 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(+5VSB:1) ] 0 36700 50000 144.444443 text
+grestore
+gsave
+39000 51700 39000 51900 10 line
+38850 51900 39150 51900 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 38875 51950 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(+5VSB:1) ] 0 39100 51700 144.444443 text
+grestore
+39000 51700 39000 51400 10 line
+39000 51400 39900 51400 10 line
+44400 50300 42400 50300 10 line
+43000 52800 42400 52800 10 line
+44400 52800 45000 52800 10 line
+50500 49800 50500 50000 10 line
+50500 46600 50500 46800 10 line
+50400 43100 50400 43300 10 line
+50500 39900 50500 40100 10 line
+41300 51200 41300 51400 10 line
+42400 50300 42000 50300 10 line
+gsave
+39800 41600 40300 41600 10 line
+39800 41200 40300 41200 10 line
+39800 42000 40300 42000 10 line
+39800 40800 40300 40800 10 line
+39800 39600 40300 39600 10 line
+39800 39200 40300 39200 10 line
+39800 40000 40300 40000 10 line
+39800 38800 40300 38800 10 line
+39800 37200 41200 37200 10 line
+41200 37200 41200 42800 10 line
+41200 42800 39800 42800 10 line
+39800 42800 39800 37200 10 line
+39800 40400 40300 40400 10 line
+40700 42000 41200 42000 10 line
+40700 41600 41200 41600 10 line
+40700 41200 41200 41200 10 line
+40700 40800 41200 40800 10 line
+40700 40400 41200 40400 10 line
+40700 40000 41200 40000 10 line
+40700 39600 41200 39600 10 line
+40700 39200 41200 39200 10 line
+39800 42600 39500 42600 10 line
+gsave
+false false true false 208.000000 [(PB5) ] 0 39850 42650 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(1) ] 0 39750 42700 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(MOSI) ] 0 39850 42525 108.333336 text
+grestore
+39500 42200 39800 42200 10 line
+gsave
+false false true false 208.000000 [(PB6) ] 0 39850 42250 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(2) ] 0 39750 42300 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(MISO) ] 0 39850 42125 108.333336 text
+grestore
+39500 41800 39800 41800 10 line
+gsave
+false false true false 208.000000 [(PB7) ] 0 39850 41850 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(3) ] 0 39750 41900 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(SCK) ] 0 39850 41725 108.333336 text
+grestore
+39500 41400 39800 41400 10 line
+gsave
+false false true false 208.000000 [(Reset) ] 0 39850 41400 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(4) ] 0 39750 41500 144.444443 text
+grestore
+39500 41000 39800 41000 10 line
+gsave
+false false true false 208.000000 [(+5VSB) ] 0 39850 41000 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(5) ] 0 39750 41100 144.444443 text
+grestore
+39500 40200 39800 40200 10 line
+gsave
+false false true false 208.000000 [(PD0) ] 0 39850 40250 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(7) ] 0 39750 40300 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(RXD0) ] 0 39850 40125 108.333336 text
+grestore
+39500 39800 39800 39800 10 line
+gsave
+false false true false 208.000000 [(PD1) ] 0 39850 39850 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(8) ] 0 39750 39900 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(TXD0) ] 0 39850 39725 108.333336 text
+grestore
+39500 39400 39800 39400 10 line
+gsave
+false false true false 208.000000 [(PD2) ] 0 39850 39500 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(9) ] 0 39750 39500 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(RXD1) ] 0 39850 39375 108.333336 text
+grestore
+gsave
+false false true false 156.000000 [(INT0) ] 0 39850 39275 108.333336 text
+grestore
+39500 39000 39800 39000 10 line
+gsave
+false false true false 208.000000 [(PD3) ] 0 39850 39100 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(10) ] 0 39750 39100 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(TXD1) ] 0 39850 38975 108.333336 text
+grestore
+gsave
+false false true false 156.000000 [(INT1) ] 0 39850 38875 108.333336 text
+grestore
+39800 38600 39500 38600 10 line
+gsave
+false false true false 208.000000 [(PD4) ] 0 39850 38700 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(11) ] 0 39750 38700 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(XCK1) ] 0 39850 38575 108.333336 text
+grestore
+gsave
+false false true false 156.000000 [(OC1B) ] 0 39850 38475 108.333336 text
+grestore
+39800 38200 39500 38200 10 line
+gsave
+false false true false 208.000000 [(PD5) ] 0 39850 38250 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(12) ] 0 39750 38300 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(OC1A) ] 0 39850 38125 108.333336 text
+grestore
+39800 37800 39500 37800 10 line
+gsave
+false false true false 208.000000 [(PD6) ] 0 39850 37900 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(13) ] 0 39750 37900 144.444443 text
+grestore
+gsave
+false false true false 156.000000 [(OC2B) ] 0 39850 37775 108.333336 text
+grestore
+gsave
+false false true false 156.000000 [(ICP) ] 0 39850 37675 108.333336 text
+grestore
+39800 38400 40300 38400 10 line
+39800 38000 40300 38000 10 line
+40300 37200 40300 42800 10 line
+40700 37200 40700 42800 10 line
+41200 37400 41500 37400 10 line
+gsave
+false true true false 208.000000 [(+3.3V) ] 0 41150 37400 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(15) ] 0 41250 37500 144.444443 text
+grestore
+41200 37800 41500 37800 10 line
+gsave
+false true true false 208.000000 [(PC0) ] 0 41150 37850 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(16) ] 0 41250 37900 144.444443 text
+grestore
+gsave
+false true true false 130.000000 [(SCL) ] 0 41150 37725 90.277779 text
+grestore
+41200 38200 41500 38200 10 line
+gsave
+false true true false 208.000000 [(PC1) ] 0 41150 38250 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(17) ] 0 41250 38300 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(SDA) ] 0 41150 38125 108.333336 text
+grestore
+41200 38600 41500 38600 10 line
+gsave
+false true true false 208.000000 [(EDir) ] 0 41150 38600 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(18) ] 0 41250 38700 144.444443 text
+grestore
+41200 39000 41500 39000 10 line
+gsave
+false true true false 208.000000 [(EStep) ] 0 41150 39000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(19) ] 0 41250 39100 144.444443 text
+grestore
+41200 39400 41500 39400 10 line
+gsave
+false true true false 208.000000 [(PC4) ] 0 41150 39450 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(20) ] 0 41250 39500 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(TDO) ] 0 41150 39325 108.333336 text
+grestore
+41200 39800 41500 39800 10 line
+gsave
+false true true false 208.000000 [(PC5) ] 0 41150 39850 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(21) ] 0 41250 39900 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(TDI) ] 0 41150 39725 108.333336 text
+grestore
+41200 40600 41500 40600 10 line
+gsave
+false true true false 208.000000 [(Res.) ] 0 41150 40600 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(23) ] 0 41250 40700 144.444443 text
+grestore
+41200 41000 41500 41000 10 line
+gsave
+false true true false 208.000000 [(Res.) ] 0 41150 41000 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(24) ] 0 41250 41100 144.444443 text
+grestore
+41200 41400 41500 41400 10 line
+gsave
+false true true false 208.000000 [(AVcc) ] 0 41150 41400 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(25) ] 0 41250 41500 144.444443 text
+grestore
+41200 41800 41500 41800 10 line
+gsave
+false true true false 208.000000 [(AGND) ] 0 41150 41800 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(26) ] 0 41250 41900 144.444443 text
+grestore
+41200 42200 41500 42200 10 line
+gsave
+false true true false 208.000000 [(Aref) ] 0 41150 42200 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(27) ] 0 41250 42300 144.444443 text
+grestore
+41200 42600 41500 42600 10 line
+gsave
+false true true false 208.000000 [(PA7) ] 0 41150 42650 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(28) ] 0 41250 42700 144.444443 text
+grestore
+gsave
+false true true false 156.000000 [(ADC7) ] 0 41150 42525 108.333336 text
+grestore
+39500 40600 39800 40600 10 line
+gsave
+false false true false 208.000000 [(GND) ] 0 39850 40600 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(6) ] 0 39750 40700 144.444443 text
+grestore
+39800 37600 40300 37600 10 line
+40700 37600 41200 37600 10 line
+40700 38000 41200 38000 10 line
+40700 38400 41200 38400 10 line
+40700 38800 41200 38800 10 line
+39800 42400 40300 42400 10 line
+39800 37400 39500 37400 10 line
+gsave
+false false true false 208.000000 [(+5V) ] 0 39850 37400 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(14) ] 0 39750 37500 144.444443 text
+grestore
+40700 42400 41200 42400 10 line
+41200 40200 41500 40200 10 line
+gsave
+false true true false 208.000000 [(Enable) ] 0 41150 40200 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(22) ] 0 41250 40300 144.444443 text
+grestore
+grestore
+gsave
+false true false false 260.000000 [(CONN4) ] 0 40300 42900 180.555557 text
+grestore
+gsave
+true false false true 260.000000 [(ExtensionBoard) ] 0 40500 37150 180.555557 text
+grestore
+39000 43800 39000 37800 10 line
+39000 37800 39500 37800 10 line
+38800 38200 38800 44100 10 line
+38600 38600 38600 44400 10 line
+38400 39000 38400 44700 10 line
+38200 39400 38200 45000 10 line
+38800 38200 39500 38200 10 line
+38600 38600 39500 38600 10 line
+38400 39000 39500 39000 10 line
+38200 39400 39500 39400 10 line
+38000 45300 38000 39800 10 line
+38000 39800 39500 39800 10 line
+37800 45600 37800 40200 10 line
+37800 40200 39500 40200 10 line
+36600 41000 39500 41000 10 line
+37600 47100 37600 41400 10 line
+37600 41400 39500 41400 10 line
+37400 47400 37400 41800 10 line
+37400 41800 39500 41800 10 line
+37200 47700 37200 42200 10 line
+37200 42200 39500 42200 10 line
+37000 48000 37000 42600 10 line
+37000 42600 39500 42600 10 line
+gsave
+36600 40200 36600 40400 10 line
+36500 40200 36700 40200 10 line
+36555 40150 36645 40150 10 line
+36580 40110 36620 40110 10 line
+grestore
+39500 40600 36600 40600 10 line
+36600 40600 36600 40400 10 line
+41700 27400 42300 27400 10 line
+42100 29300 42100 37400 10 line
+42100 37400 41500 37400 10 line
+41800 44100 42500 44100 10 line
+42500 37800 42500 44100 10 line
+41500 37800 43000 37800 10 line
+41800 44400 42700 44400 10 line
+42700 38200 42700 44400 10 line
+41500 38200 43000 38200 10 line
+41500 38600 42900 38600 10 line
+42900 38600 42900 44700 10 line
+41500 39000 43100 39000 10 line
+43100 39000 43100 45000 10 line
+46800 47100 47000 47100 10 line
+47000 47100 47000 46900 10 line
+43300 39400 43300 45300 10 line
+41800 45300 43300 45300 10 line
+41500 39400 43300 39400 10 line
+41800 45600 43500 45600 10 line
+43500 39800 43500 45600 10 line
+43500 39800 41500 39800 10 line
+43700 40600 41500 40600 10 line
+41500 41000 43900 41000 10 line
+44100 41400 44100 46500 10 line
+44100 41400 41500 41400 10 line
+44300 46800 44300 41800 10 line
+44300 41800 41500 41800 10 line
+41500 42200 44500 42200 10 line
+44500 42200 44500 47100 10 line
+41800 47400 44700 47400 10 line
+44700 42600 44700 47400 10 line
+44700 42600 41500 42600 10 line
+45500 46800 45500 46600 10 line
+42300 29500 42500 29500 10 line
+42500 29500 42500 27200 10 line
+42300 27400 42300 29300 10 line
+42300 29300 42100 29300 10 line
+41700 27400 41700 27700 10 line
+gsave
+36600 41200 36600 41400 10 line
+36450 41400 36750 41400 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 36475 41450 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(+5VSB:1) ] 0 36700 41200 144.444443 text
+grestore
+36600 41000 36600 41200 10 line
+gsave
+36600 37600 36600 37800 10 line
+36450 37800 36750 37800 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 36475 37850 144.444443 text
+grestore
+grestore
+39500 37400 36600 37400 10 line
+36600 37400 36600 37600 10 line
+44900 40200 44900 47700 10 line
+44900 40200 41500 40200 10 line
+gsave
+28500 56500 28500 56700 10 line
+28400 56500 28600 56500 10 line
+28455 56450 28545 56450 10 line
+28480 56410 28520 56410 10 line
+grestore
+28500 56900 28500 56700 10 line
+27500 58000 27500 58200 10 line
+28800 55300 28800 56900 10 line
+22600 55500 22600 53700 10 line
+gsave
+28400 55500 28400 55700 10 line
+28300 55500 28500 55500 10 line
+28355 55450 28445 55450 10 line
+28380 55410 28420 55410 10 line
+grestore
+28200 55700 28400 55700 10 line
+gsave
+29100 57200 29100 56900 10 line
+gsave
+false true true false 208.000000 [(2) ] 270 29100 57450 144.444443 text
+grestore
+gsave
+false true true false 260.000000 [(D-) ] 270 29100 57600 180.555557 text
+grestore
+28500 57200 28500 56900 10 line
+gsave
+false true true false 208.000000 [(4) ] 270 28500 57450 144.444443 text
+grestore
+gsave
+false true true false 260.000000 [(GND) ] 270 28500 57600 180.555557 text
+grestore
+29400 57200 29400 56900 10 line
+gsave
+false true true false 208.000000 [(1) ] 270 29400 57450 144.444443 text
+grestore
+gsave
+false true true false 260.000000 [(5V) ] 270 29400 57600 180.555557 text
+grestore
+28800 57200 28800 56900 10 line
+gsave
+false true true false 208.000000 [(3) ] 270 28800 57450 144.444443 text
+grestore
+gsave
+false true true false 260.000000 [(D+) ] 270 28800 57600 180.555557 text
+grestore
+28000 58200 27700 58200 10 line
+gsave
+true false false true 208.000000 [(5) ] 90 28450 58200 144.444443 text
+grestore
+29400 57200 29400 57400 10 line
+29100 57200 29100 57400 10 line
+28800 57200 28800 57400 10 line
+28500 57200 28500 57400 10 line
+28200 58200 28000 58200 10 line
+28300 58200 100 0 360 10 darc
+28300 58100 28300 57400 10 line
+29600 57400 29600 59100 10 line
+29600 57400 28300 57400 10 line
+28300 58300 28300 59100 10 line
+29600 59100 28300 59100 10 line
+29600 59000 28300 59000 10 line
+29300 58100 29000 58100 10 line
+29000 58100 29100 58900 10 line
+29100 58900 29200 58900 10 line
+29200 58900 29300 58100 10 line
+28900 58100 28600 58100 10 line
+28600 58100 28700 58900 10 line
+28700 58900 28800 58900 10 line
+28800 58900 28900 58100 10 line
+29220 58740 29080 58740 10 line
+28820 58740 28680 58740 10 line
+grestore
+gsave
+false false false false 260.000000 [(USB_B) ] 90 28200 58500 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(CONN5) ] 90 28200 57400 180.555557 text
+grestore
+gsave
+27500 57800 27500 58000 10 line
+27400 57800 27600 57800 10 line
+27455 57750 27545 57750 10 line
+27480 57710 27520 57710 10 line
+grestore
+27500 58200 27700 58200 10 line
+gsave
+25900 53300 25600 53300 10 line
+gsave
+false false true false 208.000000 [(GP5) ] 0 25950 53300 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(7) ] 0 25850 53400 144.444443 text
+grestore
+25900 52900 25600 52900 10 line
+gsave
+false false true false 208.000000 [(GP4) ] 0 25950 52900 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(8) ] 0 25850 53000 144.444443 text
+grestore
+25900 52500 25600 52500 10 line
+gsave
+false false true false 208.000000 [(GP3) ] 0 25950 52500 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(9) ] 0 25850 52600 144.444443 text
+grestore
+25900 52100 25600 52100 10 line
+gsave
+false false true false 208.000000 [(TX) ] 0 25950 52100 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(10) ] 0 25850 52200 144.444443 text
+grestore
+27900 53300 28200 53300 10 line
+gsave
+false true true false 208.000000 [(GP2) ] 0 27850 53300 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(14) ] 0 27950 53400 144.444443 text
+grestore
+27900 52100 28200 52100 10 line
+gsave
+false true true false 208.000000 [(\\_RTS\\_) ] 0 27850 52100 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(11) ] 0 27950 52200 144.444443 text
+grestore
+27900 52500 28200 52500 10 line
+gsave
+false true true false 208.000000 [(RX) ] 0 27850 52500 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(12) ] 0 27950 52600 144.444443 text
+grestore
+27900 52900 28200 52900 10 line
+gsave
+false true true false 208.000000 [(\\_CTS\\_) ] 0 27850 52900 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(13) ] 0 27950 53000 144.444443 text
+grestore
+25900 56000 25900 51800 10 line
+25900 51800 27900 51800 10 line
+27900 51800 27900 56000 10 line
+27900 56000 25900 56000 10 line
+27900 53700 28200 53700 10 line
+gsave
+false true true false 208.000000 [(GP1/USBCFG) ] 0 27850 53700 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(15) ] 0 27950 53800 144.444443 text
+grestore
+27900 54100 28200 54100 10 line
+gsave
+false true true false 208.000000 [(GP0/SSPND) ] 0 27850 54100 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(16) ] 0 27950 54200 144.444443 text
+grestore
+27900 54500 28200 54500 10 line
+gsave
+false true true false 208.000000 [(Vusb) ] 0 27850 54500 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(17) ] 0 27950 54600 144.444443 text
+grestore
+27900 54900 28200 54900 10 line
+gsave
+false true true false 208.000000 [(D-) ] 0 27850 54900 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(18) ] 0 27950 55000 144.444443 text
+grestore
+27900 55300 28200 55300 10 line
+gsave
+false true true false 208.000000 [(D+) ] 0 27850 55300 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(19) ] 0 27950 55400 144.444443 text
+grestore
+27900 55700 28200 55700 10 line
+gsave
+false true true false 208.000000 [(Vss) ] 0 27850 55700 144.444443 text
+grestore
+gsave
+false false true false 208.000000 [(20) ] 0 27950 55800 144.444443 text
+grestore
+25900 54100 25600 54100 10 line
+gsave
+false false true false 208.000000 [(GP7/TxLED) ] 0 25950 54100 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(5) ] 0 25850 54200 144.444443 text
+grestore
+25900 53700 25600 53700 10 line
+gsave
+false false true false 208.000000 [(GP6/RxLED) ] 0 25950 53700 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(6) ] 0 25850 53800 144.444443 text
+grestore
+25900 54900 25600 54900 10 line
+gsave
+false false true false 208.000000 [(OSC2) ] 0 25950 54900 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(3) ] 0 25850 55000 144.444443 text
+grestore
+25900 54500 25600 54500 10 line
+gsave
+false false true false 208.000000 [(\\_RST\\_) ] 0 25950 54500 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(4) ] 0 25850 54600 144.444443 text
+grestore
+25900 55700 25600 55700 10 line
+gsave
+false false true false 208.000000 [(Vdd) ] 0 25950 55700 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(1) ] 0 25850 55800 144.444443 text
+grestore
+25900 55300 25600 55300 10 line
+gsave
+false false true false 208.000000 [(OSC1) ] 0 25950 55300 144.444443 text
+grestore
+gsave
+false true true false 208.000000 [(2) ] 0 25850 55400 144.444443 text
+grestore
+grestore
+gsave
+true false false false 260.000000 [(U8) ] 0 26900 56100 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(MCP2200) ] 0 26400 51600 180.555557 text
+grestore
+gsave
+21800 55300 21600 55300 10 line
+21300 55300 21100 55300 10 line
+21350 55200 21550 55200 10 line
+21550 55200 21550 55400 10 line
+21550 55400 21350 55400 10 line
+21350 55400 21350 55200 10 line
+21600 55160 21600 55440 10 line
+21300 55160 21300 55440 10 line
+grestore
+gsave
+false true false true 260.000000 [(U7) ] 0 21600 55100 180.555557 text
+grestore
+gsave
+false true false true 260.000000 [(12 MHz) ] 0 21800 55600 180.555557 text
+grestore
+gsave
+20900 53700 20900 53900 10 line
+20900 54600 20900 54400 10 line
+20700 54100 21100 54100 10 line
+20700 54200 21100 54200 10 line
+20900 54400 20900 54200 10 line
+20900 54100 20900 53900 10 line
+grestore
+gsave
+false false false false 260.000000 [(C5) ] 90 20800 53800 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(22 pF) ] 90 21300 53900 180.555557 text
+grestore
+gsave
+22000 53700 22000 53900 10 line
+22000 54600 22000 54400 10 line
+21800 54100 22200 54100 10 line
+21800 54200 22200 54200 10 line
+22000 54400 22000 54200 10 line
+22000 54100 22000 53900 10 line
+grestore
+gsave
+false false false false 260.000000 [(C15) ] 90 21900 53700 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(22 pF) ] 90 22400 53900 180.555557 text
+grestore
+gsave
+22000 53000 22000 53200 10 line
+21900 53000 22100 53000 10 line
+21955 52950 22045 52950 10 line
+21980 52910 22020 52910 10 line
+grestore
+22000 53200 22000 53700 10 line
+20900 53700 20900 53200 10 line
+20900 54600 20900 55300 10 line
+22000 54600 22000 55300 10 line
+gsave
+23600 54100 23800 54100 10 line
+gsave
+false true false false 208.000000 [(1) ] 0 23750 54150 144.444443 text
+grestore
+24500 54100 24300 54100 10 line
+gsave
+false false false false 208.000000 [(2) ] 0 24350 54150 144.444443 text
+grestore
+24000 54200 24100 54100 10 line
+24100 54100 24000 54000 10 line
+24000 54200 24000 54000 10 line
+24100 54200 24100 54000 10 line
+24100 54100 24300 54100 10 line
+24000 54100 23800 54100 10 line
+24050 54100 200 0 360 10 darc
+24116 54403 24217 54504 10 line
+24217 54504 24221 54455 10 line
+24221 54455 24322 54557 10 line
+24084 54318 24185 54418 10 line
+24185 54418 24189 54369 10 line
+24189 54369 24290 54470 10 line
+grestore
+gsave
+false true false true 260.000000 [(TxLED) ] 0 23800 54000 180.555557 text
+grestore
+gsave
+22500 56100 22700 56000 10 line
+22700 56000 22500 55900 10 line
+22500 55900 22700 55800 10 line
+22700 55800 22500 55700 10 line
+22500 56100 22700 56200 10 line
+22700 56200 22600 56250 10 line
+22600 56400 22600 56250 10 line
+22600 55500 22600 55652 10 line
+22500 55701 22600 55650 10 line
+grestore
+gsave
+false false false false 260.000000 [(R1) ] 90 22400 55700 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1K) ] 90 22900 55700 180.555557 text
+grestore
+gsave
+24300 53700 24500 53700 10 line
+gsave
+false true false false 208.000000 [(1) ] 0 24450 53750 144.444443 text
+grestore
+25200 53700 25000 53700 10 line
+gsave
+false false false false 208.000000 [(2) ] 0 25050 53750 144.444443 text
+grestore
+24700 53800 24800 53700 10 line
+24800 53700 24700 53600 10 line
+24700 53800 24700 53600 10 line
+24800 53800 24800 53600 10 line
+24800 53700 25000 53700 10 line
+24700 53700 24500 53700 10 line
+24750 53700 200 0 360 10 darc
+24816 54003 24917 54104 10 line
+24917 54104 24921 54055 10 line
+24921 54055 25022 54157 10 line
+24784 53918 24885 54018 10 line
+24885 54018 24889 53969 10 line
+24889 53969 24990 54070 10 line
+grestore
+gsave
+false true false true 260.000000 [(RxLED) ] 0 24500 53600 180.555557 text
+grestore
+gsave
+23300 56100 23500 56000 10 line
+23500 56000 23300 55900 10 line
+23300 55900 23500 55800 10 line
+23500 55800 23300 55700 10 line
+23300 56100 23500 56200 10 line
+23500 56200 23400 56250 10 line
+23400 56400 23400 56250 10 line
+23400 55500 23400 55652 10 line
+23300 55701 23400 55650 10 line
+grestore
+gsave
+false false false false 260.000000 [(R2) ] 90 23200 55700 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1K) ] 90 23700 55700 180.555557 text
+grestore
+25200 53700 25600 53700 10 line
+23400 54100 23400 55500 10 line
+22600 56400 22600 56600 10 line
+23400 56400 23400 56600 10 line
+24300 53700 22600 53700 10 line
+24500 54100 25600 54100 10 line
+21800 55300 25600 55300 10 line
+20900 54900 25600 54900 10 line
+21100 55300 20900 55300 10 line
+gsave
+20900 53000 20900 53200 10 line
+20800 53000 21000 53000 10 line
+20855 52950 20945 52950 10 line
+20880 52910 20920 52910 10 line
+grestore
+29100 54900 29100 56900 10 line
+29100 54900 28200 54900 10 line
+28800 55300 28200 55300 10 line
+25400 56600 25400 55700 10 line
+25400 55700 25600 55700 10 line
+25600 52100 25400 52100 10 line
+28200 52500 28800 52500 10 line
+gsave
+24500 56100 24700 56000 10 line
+24700 56000 24500 55900 10 line
+24500 55900 24700 55800 10 line
+24700 55800 24500 55700 10 line
+24500 56100 24700 56200 10 line
+24700 56200 24600 56250 10 line
+24600 56400 24600 56250 10 line
+24600 55500 24600 55652 10 line
+24500 55701 24600 55650 10 line
+grestore
+gsave
+false false false false 260.000000 [(R3) ] 90 24400 55700 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(10K) ] 90 24900 55700 180.555557 text
+grestore
+24600 54500 25600 54500 10 line
+24600 54500 24600 55500 10 line
+24600 56400 24600 56600 10 line
+gsave
+28600 54500 28800 54500 10 line
+29500 54500 29300 54500 10 line
+29000 54700 29000 54300 10 line
+29100 54700 29100 54300 10 line
+29300 54500 29100 54500 10 line
+29000 54500 28800 54500 10 line
+grestore
+gsave
+false false false false 260.000000 [(C20) ] 0 28600 54600 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 28800 54100 180.555557 text
+grestore
+28200 54500 28600 54500 10 line
+gsave
+29900 54100 29900 54300 10 line
+29800 54100 30000 54100 10 line
+29855 54050 29945 54050 10 line
+29880 54010 29920 54010 10 line
+grestore
+29500 54500 29900 54500 10 line
+29900 54500 29900 54300 10 line
+28400 52100 28200 52100 10 line
+gsave
+28400 52700 28400 52900 10 line
+28300 52700 28500 52700 10 line
+28355 52650 28445 52650 10 line
+28380 52610 28420 52610 10 line
+grestore
+28200 52900 28400 52900 10 line
+23600 54100 23400 54100 10 line
+gsave
+false false false false 156.000000 [(0.22 to 0.47 uF recomm.) (according to data sheet) ] 0 29200 54600 108.333336 text
+grestore
+gsave
+22600 56600 22600 56800 10 line
+22450 56800 22750 56800 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 22475 56850 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(+5VSB:1) ] 0 22700 56600 144.444443 text
+grestore
+gsave
+23400 56600 23400 56800 10 line
+23250 56800 23550 56800 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 23275 56850 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(+5VSB:1) ] 0 23500 56600 144.444443 text
+grestore
+gsave
+24600 56600 24600 56800 10 line
+24450 56800 24750 56800 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 24475 56850 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(+5VSB:1) ] 0 24700 56600 144.444443 text
+grestore
+gsave
+25400 56600 25400 56800 10 line
+25250 56800 25550 56800 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 25275 56850 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(+5VSB:1) ] 0 25500 56600 144.444443 text
+grestore
+28400 50800 28400 52100 10 line
+40900 45200 42200 45200 10 line
+42200 45200 42200 45800 10 line
+42200 45800 40900 45800 10 line
+40900 45800 40900 45200 10 line
+40900 44000 42200 44000 10 line
+42200 44000 42200 44600 10 line
+42200 44600 40900 44600 10 line
+40900 44600 40900 44000 10 line
+gsave
+54100 36000 53800 36000 10 line
+gsave
+false false false false 260.000000 [(EN) ] 0 54155 35995 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(1) ] 0 54005 36045 144.444443 text
+grestore
+53800 34800 54100 34800 10 line
+gsave
+false false false false 260.000000 [(STEP) ] 0 54150 34775 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(7) ] 0 53900 34850 144.444443 text
+grestore
+gsave
+false false false false 260.000000 [(Pololu Stepper Driver) ] 0 53800 36300 180.555557 text
+grestore
+54100 35800 53800 35800 10 line
+gsave
+false false false false 260.000000 [(MS1) ] 0 54155 35795 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(2) ] 0 54005 35845 144.444443 text
+grestore
+54100 35600 53800 35600 10 line
+gsave
+false false false false 260.000000 [(MS2) ] 0 54155 35595 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(3) ] 0 54005 35645 144.444443 text
+grestore
+54100 35400 53800 35400 10 line
+gsave
+false false false false 260.000000 [(MS3) ] 0 54155 35395 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(4) ] 0 54005 35445 144.444443 text
+grestore
+54100 35200 53800 35200 10 line
+gsave
+false false false false 260.000000 [(RST) ] 0 54155 35195 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(5) ] 0 54005 35245 144.444443 text
+grestore
+54100 35000 53800 35000 10 line
+gsave
+false false false false 260.000000 [(SLP) ] 0 54155 34995 180.555557 text
+grestore
+gsave
+false true false false 208.000000 [(6) ] 0 54005 35045 144.444443 text
+grestore
+53800 34600 54100 34600 10 line
+gsave
+false false false false 260.000000 [(DIR) ] 0 54150 34575 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(8) ] 0 53900 34650 144.444443 text
+grestore
+55600 34600 55300 34600 10 line
+gsave
+false true false false 208.000000 [(GND) ] 0 55245 34595 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(9) ] 0 55395 34645 144.444443 text
+grestore
+55600 34800 55300 34800 10 line
+gsave
+false true false false 208.000000 [(VDD) ] 0 55245 34795 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(10) ] 0 55395 34845 144.444443 text
+grestore
+55600 35000 55300 35000 10 line
+gsave
+false true false false 208.000000 [(1B) ] 0 55245 34995 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(11) ] 0 55395 35045 144.444443 text
+grestore
+55600 35200 55300 35200 10 line
+gsave
+false true false false 260.000000 [(1A) ] 0 55245 35195 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(12) ] 0 55395 35245 144.444443 text
+grestore
+55600 35400 55300 35400 10 line
+gsave
+false true false false 260.000000 [(2A) ] 0 55245 35395 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(13) ] 0 55395 35445 144.444443 text
+grestore
+55600 35600 55300 35600 10 line
+gsave
+false true false false 260.000000 [(2B) ] 0 55245 35595 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(14) ] 0 55395 35645 144.444443 text
+grestore
+55600 35800 55300 35800 10 line
+gsave
+false true false false 260.000000 [(GND2) ] 0 55245 35795 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(15) ] 0 55395 35845 144.444443 text
+grestore
+55600 36000 55300 36000 10 line
+gsave
+false true false false 260.000000 [(VMOT) ] 0 55245 35995 180.555557 text
+grestore
+gsave
+false false false false 208.000000 [(16) ] 0 55395 36045 144.444443 text
+grestore
+55300 36200 54100 36200 10 line
+55300 36200 55300 34400 10 line
+55300 34400 54100 34400 10 line
+54100 34400 54100 36200 10 line
+54400 36000 54300 36000 10 line
+grestore
+gsave
+false false false false 260.000000 [(U50) ] 0 54600 36500 180.555557 text
+grestore
+gsave
+50500 36000 50500 36200 10 line
+50350 36200 50650 36200 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 50375 36250 144.444443 text
+grestore
+grestore
+gsave
+51300 35900 51200 35700 10 line
+51200 35700 51100 35900 10 line
+51100 35900 51000 35700 10 line
+51000 35700 50900 35900 10 line
+51300 35900 51400 35700 10 line
+51400 35700 51450 35800 10 line
+51600 35800 51450 35800 10 line
+50700 35800 50852 35800 10 line
+50901 35900 50850 35800 10 line
+grestore
+gsave
+false false false false 260.000000 [(R50) ] 0 50900 36000 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1K) ] 0 50900 35500 180.555557 text
+grestore
+50500 35800 50700 35800 10 line
+53600 35200 53800 35200 10 line
+53800 35000 53600 35000 10 line
+51800 35400 51800 35800 10 line
+46500 34800 53800 34800 10 line
+46200 34600 53800 34600 10 line
+gsave
+57300 36400 57300 36200 10 line
+57400 36400 57200 36400 10 line
+57345 36450 57255 36450 10 line
+57320 36490 57280 36490 10 line
+grestore
+57300 36200 57300 35800 10 line
+57300 35800 55600 35800 10 line
+gsave
+56200 36000 56400 36000 10 line
+57100 36000 56900 36000 10 line
+56600 36200 56600 35800 10 line
+56700 36200 56700 35800 10 line
+56900 36000 56700 36000 10 line
+56600 36000 56400 36000 10 line
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 35600 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(C50) ] 0 56400 36300 180.555557 text
+grestore
+55600 36000 56200 36000 10 line
+57100 36000 57300 36000 10 line
+gsave
+55900 34200 55900 34400 10 line
+55800 34200 56000 34200 10 line
+55855 34150 55945 34150 10 line
+55880 34110 55920 34110 10 line
+grestore
+gsave
+57300 34400 57300 34200 10 line
+57450 34200 57150 34200 10 line
+gsave
+false true false true 208.000000 [(+5V) ] 0 57425 34150 144.444443 text
+grestore
+grestore
+57300 34800 57300 34400 10 line
+55900 34400 55900 34600 10 line
+57300 34800 55600 34800 10 line
+gsave
+59200 34500 59200 34800 10 line
+gsave
+false true false false 208.000000 [(3) ] 270 59150 33350 144.444443 text
+grestore
+59500 34500 59500 34800 10 line
+gsave
+false true false false 208.000000 [(2) ] 270 59450 33350 144.444443 text
+grestore
+58900 34500 58900 34800 10 line
+gsave
+false true false false 208.000000 [(4) ] 270 58850 33350 144.444443 text
+grestore
+59500 34500 59500 33600 10 line
+59200 34500 59200 33600 10 line
+58900 34500 58900 33600 10 line
+59800 34500 59800 34800 10 line
+gsave
+false true false false 208.000000 [(1) ] 270 59750 33350 144.444443 text
+grestore
+59800 34500 59800 33600 10 line
+58700 33100 60000 33100 10 line
+60000 33100 60000 33600 10 line
+60000 33600 58700 33600 10 line
+58700 33600 58700 33100 10 line
+grestore
+gsave
+false true false false 260.000000 [(A_MOT) ] 0 59700 32900 180.555557 text
+grestore
+55600 35600 58900 35600 10 line
+55600 35400 59200 35400 10 line
+55600 35200 59500 35200 10 line
+55600 35000 59800 35000 10 line
+gsave
+52000 35600 52200 35600 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 35650 144.444443 text
+grestore
+53000 35600 52800 35600 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 35650 144.444443 text
+grestore
+52300 35600 50 0 360 10 darc
+52700 35600 50 0 360 10 darc
+52200 35500 52800 35500 10 line
+52800 35500 52800 35700 10 line
+52800 35700 52200 35700 10 line
+52200 35700 52200 35500 10 line
+grestore
+gsave
+false false false false 260.000000 [(J52) ] 90 52500 35800 180.555557 text
+grestore
+gsave
+52000 35400 52200 35400 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 52150 35450 144.444443 text
+grestore
+53000 35400 52800 35400 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 52950 35450 144.444443 text
+grestore
+52300 35400 50 0 360 10 darc
+52700 35400 50 0 360 10 darc
+52200 35300 52800 35300 10 line
+52800 35300 52800 35500 10 line
+52800 35500 52200 35500 10 line
+52200 35500 52200 35300 10 line
+grestore
+gsave
+false false false false 260.000000 [(J53) ] 90 52500 35600 180.555557 text
+grestore
+51600 35800 53800 35800 10 line
+53000 35600 53800 35600 10 line
+53000 35400 53800 35400 10 line
+51800 35400 52000 35400 10 line
+51800 35600 52000 35600 10 line
+55600 34600 56200 34600 10 line
+53600 35200 53600 35000 10 line
+57100 34600 57300 34600 10 line
+gsave
+56200 34600 56400 34600 10 line
+57100 34600 56900 34600 10 line
+56600 34800 56600 34400 10 line
+56700 34800 56700 34400 10 line
+56900 34600 56700 34600 10 line
+56600 34600 56400 34600 10 line
+grestore
+gsave
+false false false false 260.000000 [(C51) ] 0 57500 34500 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(0.1 uF) ] 0 56400 34200 180.555557 text
+grestore
+53200 36000 53800 36000 10 line
+59800 35000 59800 34800 10 line
+59500 35200 59500 34800 10 line
+59200 35400 59200 34800 10 line
+58900 35600 58900 34800 10 line
+50500 35800 50500 36000 10 line
+gsave
+55900 36600 55900 36800 10 line
+55750 36800 56050 36800 10 line
+gsave
+false false false false 208.000000 [(+12V) ] 0 55775 36850 144.444443 text
+grestore
+grestore
+gsave
+false false false false 208.000000 [(Vmot:1) ] 0 56000 36600 144.444443 text
+grestore
+55900 36000 55900 36600 10 line
+gsave
+43000 38200 43200 38200 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 43150 38250 144.444443 text
+grestore
+44000 38200 43800 38200 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 43950 38250 144.444443 text
+grestore
+43300 38200 50 0 360 10 darc
+43700 38200 50 0 360 10 darc
+43200 38100 43800 38100 10 line
+43800 38100 43800 38300 10 line
+43800 38300 43200 38300 10 line
+43200 38300 43200 38100 10 line
+grestore
+gsave
+false false false false 260.000000 [(J50) ] 90 43800 38400 180.555557 text
+grestore
+gsave
+43000 37800 43200 37800 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 43150 37850 144.444443 text
+grestore
+44000 37800 43800 37800 10 line
+gsave
+false false false false 208.000000 [(1) ] 90 43950 37850 144.444443 text
+grestore
+43300 37800 50 0 360 10 darc
+43700 37800 50 0 360 10 darc
+43200 37700 43800 37700 10 line
+43800 37700 43800 37900 10 line
+43800 37900 43200 37900 10 line
+43200 37900 43200 37700 10 line
+grestore
+gsave
+false false false false 260.000000 [(J51) ] 90 43600 38000 180.555557 text
+grestore
+46500 34800 46500 38200 10 line
+46500 38200 44000 38200 10 line
+44000 37800 46200 37800 10 line
+46200 37800 46200 34600 10 line
+45800 43600 47100 43600 10 line
+47100 43600 47100 44200 10 line
+47100 44200 45800 44200 10 line
+45800 44200 45800 43600 10 line
+gsave
+false false false false 260.000000 [(Free Pins) ] 0 46000 43900 180.555557 text
+grestore
+gsave
+16600 25900 60600 25900 10 line
+60600 25900 60600 59900 10 line
+60600 59900 16600 59900 10 line
+16600 59900 16600 25900 10 line
+56500 26500 56500 25900 10 line
+gsave
+false false false false 208.000000 [(FILE:) ] 0 53100 26300 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(REVISION:) ] 0 56600 26300 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(DRAWN BY: ) ] 0 56600 26000 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(PAGE) ] 0 53100 26000 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(OF) ] 0 54800 26000 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(TITLE) ] 0 53100 26600 144.444443 text
+grestore
+53000 25900 60600 25900 10 line
+60600 25900 60600 27300 10 line
+60600 27300 53000 27300 10 line
+53000 27300 53000 25900 10 line
+53000 26500 60600 26500 10 line
+grestore
+gsave
+false false false false 260.000000 [(Gen7Rapid-A.sch) ] 0 53600 26300 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(Steve Novakov) ] 0 57600 26000 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1) ] 0 54100 26000 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(1) ] 0 55500 26000 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(Gen7-AVR v1.5 - UBC Rapid Respin) ] 0 53600 26600 180.555557 text
+grestore
+gsave
+false false false false 260.000000 [(A) ] 0 57500 26300 180.555557 text
+grestore
+gsave
+51000 32000 51200 32000 10 line
+52000 32000 51800 32000 10 line
+51300 32000 50 0 360 10 darc
+51700 32000 50 0 360 10 darc
+51200 31900 51800 31900 10 line
+51800 31900 51800 32100 10 line
+51800 32100 51200 32100 10 line
+51200 32100 51200 31900 10 line
+gsave
+false false false false 208.000000 [(2) ] 90 51150 32050 144.444443 text
+grestore
+gsave
+false false false false 208.000000 [(1) ] 90 51950 32050 144.444443 text
+grestore
+grestore
+gsave
+false false false false 260.000000 [(J60) ] 90 51600 32200 180.555557 text
+grestore
+gsave
+52500 31600 52500 31800 10 line
+52400 31600 52600 31600 10 line
+52455 31550 52545 31550 10 line
+52480 31510 52520 31510 10 line
+grestore
+gsave
+50300 32200 50300 32400 10 line
+50150 32400 50450 32400 10 line
+gsave
+false false false false 208.000000 [(+5V) ] 0 50175 32450 144.444443 text
+grestore
+grestore
+50300 32200 50300 32000 10 line
+50300 32000 51000 32000 10 line
+52500 31800 52500 32000 10 line
+52000 32000 52500 32000 10 line
+gsave
+false false false false 260.000000 [(+5V Fan Header) ] 0 50900 32800 180.555557 text
+grestore
+newpath
+55900 50000
+25
+0 360 arc
+fill
+newpath
+55900 50000
+25
+0 360 arc
+fill
+newpath
+57300 50000
+25
+0 360 arc
+fill
+newpath
+57300 48600
+25
+0 360 arc
+fill
+newpath
+55900 48600
+25
+0 360 arc
+fill
+newpath
+55900 48600
+25
+0 360 arc
+fill
+newpath
+51800 46400
+25
+0 360 arc
+fill
+newpath
+51800 46400
+25
+0 360 arc
+fill
+newpath
+51800 46600
+25
+0 360 arc
+fill
+newpath
+51800 46400
+25
+0 360 arc
+fill
+newpath
+51800 46600
+25
+0 360 arc
+fill
+newpath
+51800 43100
+25
+0 360 arc
+fill
+newpath
+51800 42900
+25
+0 360 arc
+fill
+newpath
+51800 43100
+25
+0 360 arc
+fill
+newpath
+51800 39900
+25
+0 360 arc
+fill
+newpath
+51800 39900
+25
+0 360 arc
+fill
+newpath
+51800 39700
+25
+0 360 arc
+fill
+newpath
+23200 43000
+25
+0 360 arc
+fill
+newpath
+23200 43800
+25
+0 360 arc
+fill
+newpath
+23200 43000
+25
+0 360 arc
+fill
+newpath
+42900 44700
+25
+0 360 arc
+fill
+newpath
+43900 45600
+25
+0 360 arc
+fill
+newpath
+43900 45600
+25
+0 360 arc
+fill
+newpath
+43700 45400
+25
+0 360 arc
+fill
+newpath
+43700 45400
+25
+0 360 arc
+fill
+newpath
+43100 45000
+25
+0 360 arc
+fill
+newpath
+39300 29500
+25
+0 360 arc
+fill
+newpath
+39300 29500
+25
+0 360 arc
+fill
+newpath
+39300 27400
+25
+0 360 arc
+fill
+newpath
+39300 27400
+25
+0 360 arc
+fill
+newpath
+32600 29500
+25
+0 360 arc
+fill
+newpath
+36600 46800
+25
+0 360 arc
+fill
+newpath
+36600 46800
+25
+0 360 arc
+fill
+newpath
+38500 31700
+25
+0 360 arc
+fill
+newpath
+38500 33200
+25
+0 360 arc
+fill
+newpath
+44500 30800
+25
+0 360 arc
+fill
+newpath
+39300 31700
+25
+0 360 arc
+fill
+newpath
+39300 31700
+25
+0 360 arc
+fill
+newpath
+38500 31700
+25
+0 360 arc
+fill
+newpath
+38500 31700
+25
+0 360 arc
+fill
+newpath
+39300 31700
+25
+0 360 arc
+fill
+newpath
+39300 29500
+25
+0 360 arc
+fill
+newpath
+39300 29500
+25
+0 360 arc
+fill
+newpath
+42400 46500
+25
+0 360 arc
+fill
+newpath
+44300 46800
+25
+0 360 arc
+fill
+newpath
+35600 44500
+25
+0 360 arc
+fill
+newpath
+35600 44500
+25
+0 360 arc
+fill
+newpath
+34900 44500
+25
+0 360 arc
+fill
+newpath
+34900 44500
+25
+0 360 arc
+fill
+newpath
+35600 42600
+25
+0 360 arc
+fill
+newpath
+35600 42600
+25
+0 360 arc
+fill
+newpath
+35600 42600
+25
+0 360 arc
+fill
+newpath
+38500 33200
+25
+0 360 arc
+fill
+newpath
+38500 33200
+25
+0 360 arc
+fill
+newpath
+34000 31700
+25
+0 360 arc
+fill
+newpath
+34000 31700
+25
+0 360 arc
+fill
+newpath
+34000 33300
+25
+0 360 arc
+fill
+newpath
+34000 33300
+25
+0 360 arc
+fill
+newpath
+33600 29500
+25
+0 360 arc
+fill
+newpath
+33600 29500
+25
+0 360 arc
+fill
+newpath
+32600 29500
+25
+0 360 arc
+fill
+newpath
+32600 29500
+25
+0 360 arc
+fill
+newpath
+33600 29500
+25
+0 360 arc
+fill
+newpath
+39300 29500
+25
+0 360 arc
+fill
+newpath
+39300 29500
+25
+0 360 arc
+fill
+newpath
+36900 29500
+25
+0 360 arc
+fill
+newpath
+40100 29500
+25
+0 360 arc
+fill
+newpath
+40100 29500
+25
+0 360 arc
+fill
+newpath
+34000 31700
+25
+0 360 arc
+fill
+newpath
+34000 33300
+25
+0 360 arc
+fill
+newpath
+37800 45600
+25
+0 360 arc
+fill
+newpath
+38000 45300
+25
+0 360 arc
+fill
+newpath
+55900 46800
+25
+0 360 arc
+fill
+newpath
+55900 46800
+25
+0 360 arc
+fill
+newpath
+57300 46800
+25
+0 360 arc
+fill
+newpath
+55900 43300
+25
+0 360 arc
+fill
+newpath
+55900 43300
+25
+0 360 arc
+fill
+newpath
+57300 43300
+25
+0 360 arc
+fill
+newpath
+55900 43300
+25
+0 360 arc
+fill
+newpath
+57300 43300
+25
+0 360 arc
+fill
+newpath
+57300 43300
+25
+0 360 arc
+fill
+newpath
+55900 40100
+25
+0 360 arc
+fill
+newpath
+55900 40100
+25
+0 360 arc
+fill
+newpath
+57300 40100
+25
+0 360 arc
+fill
+newpath
+55900 40100
+25
+0 360 arc
+fill
+newpath
+57300 40100
+25
+0 360 arc
+fill
+newpath
+57300 40100
+25
+0 360 arc
+fill
+newpath
+51800 49800
+25
+0 360 arc
+fill
+newpath
+51800 49800
+25
+0 360 arc
+fill
+newpath
+51800 49600
+25
+0 360 arc
+fill
+newpath
+55900 48600
+25
+0 360 arc
+fill
+newpath
+57300 48600
+25
+0 360 arc
+fill
+newpath
+57300 48600
+25
+0 360 arc
+fill
+newpath
+57300 45400
+25
+0 360 arc
+fill
+newpath
+55900 45400
+25
+0 360 arc
+fill
+newpath
+55900 45400
+25
+0 360 arc
+fill
+newpath
+55900 45400
+25
+0 360 arc
+fill
+newpath
+57300 45400
+25
+0 360 arc
+fill
+newpath
+57300 45400
+25
+0 360 arc
+fill
+newpath
+57300 41900
+25
+0 360 arc
+fill
+newpath
+55900 41900
+25
+0 360 arc
+fill
+newpath
+55900 41900
+25
+0 360 arc
+fill
+newpath
+55900 41900
+25
+0 360 arc
+fill
+newpath
+57300 41900
+25
+0 360 arc
+fill
+newpath
+57300 41900
+25
+0 360 arc
+fill
+newpath
+57300 38700
+25
+0 360 arc
+fill
+newpath
+55900 38700
+25
+0 360 arc
+fill
+newpath
+55900 38700
+25
+0 360 arc
+fill
+newpath
+44500 47100
+25
+0 360 arc
+fill
+newpath
+36600 46800
+25
+0 360 arc
+fill
+newpath
+33400 46800
+25
+0 360 arc
+fill
+newpath
+34200 46800
+25
+0 360 arc
+fill
+newpath
+28400 47100
+25
+0 360 arc
+fill
+newpath
+32800 47100
+25
+0 360 arc
+fill
+newpath
+37600 47100
+25
+0 360 arc
+fill
+newpath
+37200 47700
+25
+0 360 arc
+fill
+newpath
+37000 48000
+25
+0 360 arc
+fill
+newpath
+28400 47100
+25
+0 360 arc
+fill
+newpath
+28400 47100
+25
+0 360 arc
+fill
+newpath
+34900 44500
+25
+0 360 arc
+fill
+newpath
+35600 44500
+25
+0 360 arc
+fill
+newpath
+43000 52800
+25
+0 360 arc
+fill
+newpath
+43000 52800
+25
+0 360 arc
+fill
+newpath
+45000 52800
+25
+0 360 arc
+fill
+newpath
+45000 52800
+25
+0 360 arc
+fill
+newpath
+42400 46500
+25
+0 360 arc
+fill
+newpath
+42400 46500
+25
+0 360 arc
+fill
+newpath
+42400 50300
+25
+0 360 arc
+fill
+newpath
+42400 50300
+25
+0 360 arc
+fill
+newpath
+23200 39300
+25
+0 360 arc
+fill
+newpath
+23200 40100
+25
+0 360 arc
+fill
+newpath
+23200 39300
+25
+0 360 arc
+fill
+newpath
+51800 49800
+25
+0 360 arc
+fill
+newpath
+51800 49600
+25
+0 360 arc
+fill
+newpath
+51800 49600
+25
+0 360 arc
+fill
+newpath
+51800 39900
+25
+0 360 arc
+fill
+newpath
+51800 39700
+25
+0 360 arc
+fill
+newpath
+51800 39700
+25
+0 360 arc
+fill
+newpath
+51800 42900
+25
+0 360 arc
+fill
+newpath
+51800 42900
+25
+0 360 arc
+fill
+newpath
+51800 43100
+25
+0 360 arc
+fill
+newpath
+51800 46600
+25
+0 360 arc
+fill
+newpath
+55900 50000
+25
+0 360 arc
+fill
+newpath
+55900 46800
+25
+0 360 arc
+fill
+newpath
+57300 46800
+25
+0 360 arc
+fill
+newpath
+57300 46800
+25
+0 360 arc
+fill
+newpath
+55900 38700
+25
+0 360 arc
+fill
+newpath
+43000 52800
+25
+0 360 arc
+fill
+newpath
+43000 52800
+25
+0 360 arc
+fill
+newpath
+45000 52800
+25
+0 360 arc
+fill
+newpath
+45000 52800
+25
+0 360 arc
+fill
+newpath
+27600 43000
+25
+0 360 arc
+fill
+newpath
+27600 43000
+25
+0 360 arc
+fill
+newpath
+27600 39300
+25
+0 360 arc
+fill
+newpath
+27600 39300
+25
+0 360 arc
+fill
+newpath
+32800 47100
+25
+0 360 arc
+fill
+newpath
+32800 47100
+25
+0 360 arc
+fill
+newpath
+32800 43400
+25
+0 360 arc
+fill
+newpath
+33400 46800
+25
+0 360 arc
+fill
+newpath
+33400 46800
+25
+0 360 arc
+fill
+newpath
+32800 43400
+25
+0 360 arc
+fill
+newpath
+32800 43400
+25
+0 360 arc
+fill
+newpath
+23200 40100
+25
+0 360 arc
+fill
+newpath
+23200 40100
+25
+0 360 arc
+fill
+newpath
+27600 39300
+25
+0 360 arc
+fill
+newpath
+27600 39300
+25
+0 360 arc
+fill
+newpath
+23200 43800
+25
+0 360 arc
+fill
+newpath
+23200 43800
+25
+0 360 arc
+fill
+newpath
+27600 43000
+25
+0 360 arc
+fill
+newpath
+27600 43000
+25
+0 360 arc
+fill
+newpath
+27600 39300
+25
+0 360 arc
+fill
+newpath
+27600 39300
+25
+0 360 arc
+fill
+newpath
+27600 43000
+25
+0 360 arc
+fill
+newpath
+27600 43000
+25
+0 360 arc
+fill
+newpath
+43700 29500
+25
+0 360 arc
+fill
+newpath
+37400 47400
+25
+0 360 arc
+fill
+newpath
+39300 27400
+25
+0 360 arc
+fill
+newpath
+36900 29500
+25
+0 360 arc
+fill
+newpath
+36900 29500
+25
+0 360 arc
+fill
+newpath
+38100 27000
+25
+0 360 arc
+fill
+newpath
+38100 27000
+25
+0 360 arc
+fill
+newpath
+38100 27000
+25
+0 360 arc
+fill
+newpath
+40100 29500
+25
+0 360 arc
+fill
+newpath
+40100 29500
+25
+0 360 arc
+fill
+newpath
+40100 29500
+25
+0 360 arc
+fill
+newpath
+40100 29500
+25
+0 360 arc
+fill
+newpath
+43700 45400
+25
+0 360 arc
+fill
+newpath
+43900 45600
+25
+0 360 arc
+fill
+newpath
+43700 29500
+25
+0 360 arc
+fill
+newpath
+44100 29500
+25
+0 360 arc
+fill
+newpath
+43700 29500
+25
+0 360 arc
+fill
+newpath
+44100 29500
+25
+0 360 arc
+fill
+newpath
+44100 29500
+25
+0 360 arc
+fill
+newpath
+44500 30800
+25
+0 360 arc
+fill
+newpath
+44500 30800
+25
+0 360 arc
+fill
+newpath
+34200 46800
+25
+0 360 arc
+fill
+newpath
+34200 46800
+25
+0 360 arc
+fill
+newpath
+43300 31700
+25
+0 360 arc
+fill
+newpath
+43300 31700
+25
+0 360 arc
+fill
+newpath
+43300 31700
+25
+0 360 arc
+fill
+newpath
+57300 38700
+25
+0 360 arc
+fill
+newpath
+57300 38700
+25
+0 360 arc
+fill
+newpath
+57300 50000
+25
+0 360 arc
+fill
+newpath
+57300 50000
+25
+0 360 arc
+fill
+newpath
+23200 43000
+25
+0 360 arc
+fill
+newpath
+23200 39300
+25
+0 360 arc
+fill
+newpath
+41300 51400
+25
+0 360 arc
+fill
+newpath
+53200 40100
+25
+0 360 arc
+fill
+newpath
+53200 43300
+25
+0 360 arc
+fill
+newpath
+53200 46800
+25
+0 360 arc
+fill
+newpath
+53200 47700
+25
+0 360 arc
+fill
+newpath
+53200 40100
+25
+0 360 arc
+fill
+newpath
+53200 40100
+25
+0 360 arc
+fill
+newpath
+53200 43300
+25
+0 360 arc
+fill
+newpath
+53200 43300
+25
+0 360 arc
+fill
+newpath
+53200 46800
+25
+0 360 arc
+fill
+newpath
+53200 46800
+25
+0 360 arc
+fill
+newpath
+53200 47700
+25
+0 360 arc
+fill
+newpath
+53200 47700
+25
+0 360 arc
+fill
+newpath
+44900 47700
+25
+0 360 arc
+fill
+newpath
+47000 30800
+25
+0 360 arc
+fill
+newpath
+46200 29500
+25
+0 360 arc
+fill
+newpath
+46200 29500
+25
+0 360 arc
+fill
+newpath
+46600 29500
+25
+0 360 arc
+fill
+newpath
+46200 29500
+25
+0 360 arc
+fill
+newpath
+46600 29500
+25
+0 360 arc
+fill
+newpath
+46600 29500
+25
+0 360 arc
+fill
+newpath
+47000 30800
+25
+0 360 arc
+fill
+newpath
+47000 30800
+25
+0 360 arc
+fill
+newpath
+42400 50300
+25
+0 360 arc
+fill
+newpath
+42400 50300
+25
+0 360 arc
+fill
+newpath
+43000 52800
+25
+0 360 arc
+fill
+newpath
+43000 52800
+25
+0 360 arc
+fill
+newpath
+45000 52800
+25
+0 360 arc
+fill
+newpath
+45000 52800
+25
+0 360 arc
+fill
+newpath
+41300 51400
+25
+0 360 arc
+fill
+newpath
+41300 51400
+25
+0 360 arc
+fill
+newpath
+42400 50300
+25
+0 360 arc
+fill
+newpath
+42400 50300
+25
+0 360 arc
+fill
+newpath
+38000 45300
+25
+0 360 arc
+fill
+newpath
+38000 45300
+25
+0 360 arc
+fill
+newpath
+37800 45600
+25
+0 360 arc
+fill
+newpath
+37800 45600
+25
+0 360 arc
+fill
+newpath
+37600 47100
+25
+0 360 arc
+fill
+newpath
+37600 47100
+25
+0 360 arc
+fill
+newpath
+37400 47400
+25
+0 360 arc
+fill
+newpath
+37400 47400
+25
+0 360 arc
+fill
+newpath
+37200 47700
+25
+0 360 arc
+fill
+newpath
+37200 47700
+25
+0 360 arc
+fill
+newpath
+37000 48000
+25
+0 360 arc
+fill
+newpath
+37000 48000
+25
+0 360 arc
+fill
+newpath
+42500 37800
+25
+0 360 arc
+fill
+newpath
+42500 37800
+25
+0 360 arc
+fill
+newpath
+42500 37800
+25
+0 360 arc
+fill
+newpath
+42700 38200
+25
+0 360 arc
+fill
+newpath
+42700 38200
+25
+0 360 arc
+fill
+newpath
+42700 38200
+25
+0 360 arc
+fill
+newpath
+42900 44700
+25
+0 360 arc
+fill
+newpath
+42900 44700
+25
+0 360 arc
+fill
+newpath
+43100 45000
+25
+0 360 arc
+fill
+newpath
+43100 45000
+25
+0 360 arc
+fill
+newpath
+44300 46800
+25
+0 360 arc
+fill
+newpath
+44300 46800
+25
+0 360 arc
+fill
+newpath
+44500 47100
+25
+0 360 arc
+fill
+newpath
+44500 47100
+25
+0 360 arc
+fill
+newpath
+44900 47700
+25
+0 360 arc
+fill
+newpath
+44900 47700
+25
+0 360 arc
+fill
+newpath
+20900 54900
+25
+0 360 arc
+fill
+newpath
+22000 55300
+25
+0 360 arc
+fill
+newpath
+22000 55300
+25
+0 360 arc
+fill
+newpath
+22000 55300
+25
+0 360 arc
+fill
+newpath
+20900 54900
+25
+0 360 arc
+fill
+newpath
+20900 54900
+25
+0 360 arc
+fill
+newpath
+51800 35800
+25
+0 360 arc
+fill
+newpath
+51800 35800
+25
+0 360 arc
+fill
+newpath
+51800 35600
+25
+0 360 arc
+fill
+newpath
+57300 36000
+25
+0 360 arc
+fill
+newpath
+55900 36000
+25
+0 360 arc
+fill
+newpath
+57300 36000
+25
+0 360 arc
+fill
+newpath
+57300 36000
+25
+0 360 arc
+fill
+newpath
+57300 34600
+25
+0 360 arc
+fill
+newpath
+55900 34600
+25
+0 360 arc
+fill
+newpath
+55900 34600
+25
+0 360 arc
+fill
+newpath
+51800 35800
+25
+0 360 arc
+fill
+newpath
+51800 35600
+25
+0 360 arc
+fill
+newpath
+51800 35600
+25
+0 360 arc
+fill
+newpath
+55900 34600
+25
+0 360 arc
+fill
+newpath
+57300 34600
+25
+0 360 arc
+fill
+newpath
+57300 34600
+25
+0 360 arc
+fill
+newpath
+55900 36000
+25
+0 360 arc
+fill
+newpath
+55900 36000
+25
+0 360 arc
+fill
+showpage
+%%End
