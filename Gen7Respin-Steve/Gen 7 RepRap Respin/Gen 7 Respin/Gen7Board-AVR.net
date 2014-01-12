@@ -1,0 +1,107 @@
+unnamed_net100	A_MOT-4 U50-14 
+unnamed_net99	A_MOT-3 U50-13 
+unnamed_net98	A_MOT-2 U50-12 
+unnamed_net97	A_MOT-1 U50-11 
+unnamed_net96	J51-1 U50-8 
+unnamed_net95	U50-6 U50-5 
+unnamed_net94	J53-1 U50-4 
+unnamed_net93	J52-1 U50-3 
+unnamed_net92	J52-2 J53-2 R50-2 U50-2 
+unnamed_net91	J50-1 U50-7 
+unnamed_net90	RxLED-1 R1-1 
+unnamed_net89	R2-1 TxLED-1 
+unnamed_net88	C15-2 U7-1 U8-2 
+unnamed_net87	R3-1 U8-4 
+unnamed_net86	U7-2 C5-2 U8-3 
+unnamed_net85	RxLED-2 U8-6 
+unnamed_net84	TxLED-2 U8-5 
+unnamed_net83	C20-1 U8-17 
+unnamed_net82	U8-19 CONN5-3 
+unnamed_net81	U8-18 CONN5-2 
+unnamed_net80	CONN4-15 CONN1-11 
+unnamed_net79	J14-2 CONN1-9 
+unnamed_net78	HEATER_EXT-2 D1-2 Q1-2 LED5-2 
+unnamed_net77	R22-2 LED5-1 
+unnamed_net76	R18-2 LED4-1 
+unnamed_net75	R16-1 LED3-2 
+unnamed_net74	U8-11 C21-2 
+Vheat	CONN3-1 C7-1 HEATER_EXT-1 D1-1 R22-1 HEATER_BED-1 D2-1 R14-1 
+unnamed_net73	HEATER_BED-2 D2-2 Q2-2 LED2-2 
+unnamed_net72	R14-2 LED2-1 
+unnamed_net71	Q2-1 R12-1 
+unnamed_net70	Q1-1 R11-1 
+unnamed_net69	X_MOT-4 U5-14 
+unnamed_net68	X_MOT-3 U5-13 
+unnamed_net67	X_MOT-2 U5-12 
+unnamed_net66	X_MOT-1 U5-11 
+unnamed_net65	U5-6 U5-5 
+unnamed_net64	J12-1 U5-4 
+unnamed_net63	J11-1 U5-3 
+unnamed_net62	J11-2 J12-2 R10-2 U5-2 
+unnamed_net61	Y_MOT-4 U4-14 
+unnamed_net60	Y_MOT-3 U4-13 
+unnamed_net59	Y_MOT-2 U4-12 
+unnamed_net58	Y_MOT-1 U4-11 
+unnamed_net57	U4-6 U4-5 
+unnamed_net56	J9-1 U4-4 
+unnamed_net55	J8-1 U4-3 
+unnamed_net54	J8-2 J9-2 R8-2 U4-2 
+unnamed_net53	Z_MOT-4 U3-14 
+unnamed_net52	Z_MOT-3 U3-13 
+unnamed_net51	Z_MOT-2 U3-12 
+unnamed_net50	Z_MOT-1 U3-11 
+unnamed_net49	U3-6 U3-5 
+unnamed_net48	J6-1 U3-4 
+unnamed_net47	J5-1 U3-3 
+unnamed_net46	J5-2 J6-2 R6-2 U3-2 
+Vmot	C50-1 U50-16 CONN2-1 C1-1 C10-1 U5-16 C9-1 U4-16 C8-1 U3-16 C16-1 U2-16 
+unnamed_net45	E_MOT-4 U2-14 
+unnamed_net44	E_MOT-3 U2-13 
+unnamed_net43	E_MOT-2 U2-12 
+unnamed_net42	E_MOT-1 U2-11 
++5V	J60-2 R50-1 C51-2 U50-10 CONN4-14 J13-1 CONN2-4 Z_MIN-3 Y_MIN-3 X_MIN-3 CONN1-20 CONN1-19 C6-1 R18-1 R10-1 C17-2 U5-10 R8-1 C13-2 U4-10 R6-1 C12-2 U3-10 R4-1 C11-2 U2-10 
+unnamed_net41	U2-6 U2-5 
+unnamed_net40	J3-1 U2-4 
+unnamed_net39	J2-1 U2-3 
+unnamed_net38	J2-2 J3-2 R4-2 U2-2 
+unnamed_net37	TEMP_EXT-1 RT2-1 CT2-1 U1-39 
+unnamed_net36	U5-7 U1-38 
+unnamed_net35	U5-8 U1-37 
+unnamed_net34	U4-7 U1-36 
+unnamed_net33	U4-8 U1-35 
+unnamed_net32	CONN4-22 U50-1 U3-1 U4-1 U5-1 U2-1 U1-34 
+unnamed_net31	CONN4-28 U1-33 
+unnamed_net30	CONN4-27 C18-1 U1-32 
+unnamed_net29	CONN4-25 C19-1 L1-2 RT2-2 RT1-2 U1-30 
+unnamed_net28	CONN4-23 U3-8 U1-28 
+unnamed_net27	CONN4-18 U2-8 U1-24 
+unnamed_net26	CONN4-21 U1-27 
+unnamed_net25	CONN4-20 U1-26 
+unnamed_net24	CONN4-19 U2-7 U1-25 
+unnamed_net23	J50-2 CONN4-17 U1-23 
+unnamed_net22	J51-2 CONN4-16 U1-22 
+unnamed_net21	CONN1-14 U1-21 
+unnamed_net20	CONN4-24 U3-7 U1-29 
+unnamed_net19	CONN4-13 U1-20 
+unnamed_net18	CONN4-12 U1-19 
+unnamed_net17	CONN4-10 U1-17 
+unnamed_net16	CONN4-9 U1-16 
+unnamed_net15	CONN4-8 U8-12 U1-15 
+unnamed_net14	CONN4-7 U8-10 U1-14 
+unnamed_net13	C4-1 U6-1 U1-13 
+unnamed_net12	C3-1 U6-2 U1-12 
+GND	J60-1 C50-2 U50-15 C51-1 U50-9 C20-2 C15-1 C5-1 U8-20 U8-13 CONN5-5 CONN5-4 CONN4-6 CONN3-2 CONN3-3 C7-2 TEMP_EXT-2 TEMP_BED-2 C19-2 C18-2 C14-1 CONN6-6 RESET-1 CT2-2 CT1-2 CONN2-2 CONN2-3 C1-2 Q1-3 \
+ Q2-3 Z_MIN-2 Y_MIN-2 X_MIN-2 CONN1-5 CONN1-16 CONN1-17 CONN1-7 C2-2 CONN1-3 C6-2 LED4-2 R16-2 C4-2 C3-2 C10-2 U5-15 C17-1 U5-9 C9-2 U4-15 C13-1 U4-9 C8-2 U3-15 C12-1 U3-9 C16-2 U2-15 C11-1 U2-9 \
+ CONN4-26 U1-31 U1-11 
++5VSB	R3-2 R2-2 R1-2 U8-1 CONN4-5 L1-1 J14-1 J13-2 C2-1 LED3-1 C14-2 R30-2 CONN6-2 U1-10 
+unnamed_net11	CONN4-4 R30-1 RESET-2 C21-1 CONN6-5 U1-9 
+unnamed_net10	CONN4-3 CONN6-3 U1-8 
+unnamed_net9	TEMP_BED-1 RT1-1 CT1-1 U1-40 
+unnamed_net8	CONN4-1 CONN6-4 U1-6 
+unnamed_net7	R11-2 U1-5 
+unnamed_net6	R12-2 U1-4 
+unnamed_net5	Z_MIN-1 U1-3 
+unnamed_net4	Y_MIN-1 U1-2 
+unnamed_net3	CONN4-11 U1-18 
+unnamed_net2	CONN4-2 CONN6-1 U1-7 
+unnamed_net1	X_MIN-1 U1-1 
